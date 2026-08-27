@@ -1,0 +1,4 @@
+interface:
+  display_name: "Codex Security"
+  short_description: "Security scanning for codebases"
+  default_prompt: "Use $codex-security to run a security scan, diff scan, deep scan, or finding fix workflow."

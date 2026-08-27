@@ -1,0 +1,6 @@
+interface:
+  display_name: "Issue Study"
+  short_description: "Analyze GitHub issues from repository evidence"
+  default_prompt: "Use $is to analyze this GitHub issue without implementing changes."
+policy:
+  allow_implicit_invocation: false

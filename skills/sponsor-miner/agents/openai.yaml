@@ -1,0 +1,7 @@
+interface:
+  display_name: "Sponsor Miner"
+  short_description: "Find sponsor leads from GitHub READMEs"
+  default_prompt: "Use $sponsor-miner to find verified sponsor leads for https://github.com/owner/repo."
+policy:
+  allow_implicit_invocation: false
+

@@ -1,0 +1,4 @@
+interface:
+  display_name: "Test Coverage Improver"
+  short_description: "Add direct tests until no quick wins remain"
+  default_prompt: "Use $test-coverage-improver to add direct, test-only coverage quick wins until no eligible quick wins remain, then report added tests and deferred opportunities."

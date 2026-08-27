@@ -1,0 +1,6 @@
+interface:
+  display_name: "Commit with Context"
+  short_description: "Create coherent, well-documented commits"
+  default_prompt: "Use $commit-with-context to commit the current task with concise, high-signal context."
+policy:
+  allow_implicit_invocation: false
