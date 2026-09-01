@@ -30,6 +30,10 @@ Runs Codex Security scan, diff-scan, deep-scan, finding-fix, and phase workflows
 
 Creates coherent Conventional Commits with concise, high-signal context. Scopes the commit from the staged index and avoids splitting one task into artificial micro-commits.
 
+### `create-verification-skill`
+
+Generates a project-local verification skill that launches and drives the real app, captures evidence, and maps user-facing features for later verification.
+
 ### `grill-me`
 
 Stress-tests plans and designs through relentless direct questioning until reaching shared understanding across every branch of the decision tree.
@@ -41,6 +45,10 @@ Surveys any codebase as a senior advisor and produces prioritized, self-containe
 ### `is`
 
 Analyzes GitHub issues (bugs or feature requests) by verifying actual behavior against the codebase and execution paths, proposing concise fixes or implementation plans without making premature changes.
+
+### `maintain-verification-skill`
+
+Keeps a project's verification skill and feature map current through source review and live verification of every mapped feature.
 
 ### `orchestrate`
 
