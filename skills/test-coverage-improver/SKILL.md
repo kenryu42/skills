@@ -40,12 +40,14 @@ Use isolated temporary directories for filesystem and log state. Never write tes
 6. Run the focused test. Capture and assert expected console output so it does not leak to the test runner.
 7. Run `bun run test:coverage` again. Confirm the improvement with covered counts when available, not only rounded percentages.
 8. Repeat from candidate selection. Do not stop because one candidate is not eligible; defer it and inspect the other candidates.
-9. Stop only when inspection shows that no remaining candidate meets all quick-win rules.
+9. Before concluding that no quick wins remain, inspect the remaining coverage gaps against the quick-win rules. Report the remaining candidate areas and concrete reasons they are ineligible. Uninspected gaps are not evidence that no quick wins remain. A passing check or completed bug fix is an intermediate result, not a stopping condition.
 10. Run all affected checks and `bun run check` before completion.
 
 Do not use a fixed iteration limit. The quick-win rules are the stop condition. Do not add low-value tests only to increase a percentage.
 
-If a valid new test finds incorrect production behavior, do not change the source, weaken the test, delete the test, or skip the test. Stop the autonomous loop and report the source change that requires approval. Do not complete the goal while the required checks fail.
+If a valid new test finds incorrect production behavior, preserve the failing test and pause for approval of the minimal source fix. Do not weaken, delete, or skip the test.
+
+This pause does not end or replace the coverage task. When the user approves the fix, implement it, verify the regression passes, then automatically resume candidate selection using fresh coverage results. Do not ask whether to continue, and do not end the task after reporting the fix or a green check. Only an explicit user instruction to stop or change scope replaces the original objective.
 
 ## Deferred opportunities
 
@@ -84,7 +86,11 @@ For each deferred opportunity, report:
 - Expected coverage or behavioral value. Mark an estimate as an estimate.
 - The approval that is necessary before implementation.
 
-Also report the final coverage summary and any remaining validation failure. Do not claim completion when the checks are not green.
+### Overall coverage improvement
+
+After all loops, compare the original baseline with the final validated coverage run, not just the last iteration. For each available metric (lines, functions, and branches), report the baseline percentage, final percentage, and percentage-point increase. Include baseline and final covered/total counts and the net change in covered counts when available. Explain any coverage-scope or denominator changes that affect the comparison; do not count excluded code as newly covered code. Mark unavailable metrics as unavailable rather than estimating them.
+
+If work stops before completion, label the comparison as progress so far. Report any remaining validation failure. Do not claim completion when the checks are not green.
 
 ## Notes
 

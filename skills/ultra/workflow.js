@@ -58,6 +58,7 @@ Skim the codebase enough to judge its real complexity — do not deep-dive.
 
 ## How the plan is executed
 - Stages run strictly in order. Prompts within a stage run in parallel — except in 'implement' stages, whose prompts run one at a time in order.
+- A stage is a dependency boundary, not a topic. Independent work of the same role belongs in ONE stage as several prompts so it runs concurrently; start a new stage only when its prompts need an earlier stage's results. Five one-prompt 'investigate' stages run five times slower than one five-prompt stage.
 - Two model roles execute the stages. Fable owns judgment and runs 'investigate', 'design', and 'review' stages. Opus owns execution and runs 'implement' stages.
   - 'investigate' — read-only: locate files, read code, and answer a question precisely with file:line references and verbatim excerpts
   - 'design' — architect the implementation plan from the task and all earlier stage results (use when the change needs real design work)
