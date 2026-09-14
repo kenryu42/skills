@@ -43,9 +43,9 @@ The panel is fixed:
 
 | Arm | Model | Effort |
 | --- | --- | --- |
-| A | `claude-fable-5` | `max` |
+| A | `claude-fable-5.1` | `max` |
 | B | `claude-opus-5` | `xhigh` |
-| C | `gpt-5.6-sol` | `max` |
+| C | `gpt-6-astra` | `max` |
 
 Run the arm you already are natively. Reach the other two through their CLI.
 
@@ -61,14 +61,14 @@ Write the brief to one file first and feed the same bytes to every arm. The pane
 
 ```sh
 codex exec -s read-only --skip-git-repo-check \
-  -c model=gpt-5.6-sol -c model_reasoning_effort=max \
+  -c model=gpt-6-astra -c model_reasoning_effort=max \
   -o "$OUT/arm-c.md" - < "$OUT/brief.md"
 ```
 
 **From Codex** (`HOST=codex`) arm C is native. Reach arms A and B with:
 
 ```sh
-claude -p --model claude-fable-5 --effort max \
+claude -p --model claude-fable-5.1 --effort max \
   --disallowed-tools "Edit Write NotebookEdit" \
   --output-format text < "$OUT/brief.md" > "$OUT/arm-a.md"
 
