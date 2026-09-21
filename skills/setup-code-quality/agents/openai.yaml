@@ -1,0 +1,3 @@
+interface:
+  display_name: "Setup Code Quality"
+  short_description: "Set up Oxc, Knip, duplication and TypeScript checks"

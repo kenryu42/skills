@@ -62,6 +62,10 @@ Clones and inspects external repositories in a reusable local exploration cache 
 
 Generates concise, evidence-based notes and updates only the body of the latest existing GitHub Release.
 
+### `setup-code-quality`
+
+Sets up or migrates compatible JavaScript and TypeScript projects to Oxlint, type-aware linting, Oxfmt, jscpd, Knip, and TypeScript 7 through a shared check script. Replaces overlapping tools while preserving unique checks and leaves incompatible projects unchanged.
+
 ### `sponsor-miner`
 
 Finds and verifies potential sponsors for a GitHub repository by mining peer repos' sponsor data (README sponsor sections, sponsorkit SVGs, the GitHub Sponsors API, and Open Collective), ranking companies by cross-repo sponsorship frequency. Outputs `companies-ranked.csv` and a `verified-leads.csv` for outreach planning.
