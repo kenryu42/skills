@@ -1,6 +1,7 @@
 ---
 name: setup-code-quality
 description: Set up or migrate compatible JavaScript and TypeScript projects to Oxlint, type-aware linting, Oxfmt, jscpd, Knip, and TypeScript 7 through a shared check script. Use for requests to adopt this quality stack or replace overlapping lint and format tools; leave incompatible projects unchanged.
+disable-model-invocation: true
 ---
 
 # Setup code quality
