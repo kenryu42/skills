@@ -4,7 +4,7 @@
 
 ### `autoreview`
 
-Runs a second-model code review using Codex (`gpt-5.6-sol`) by default, with optional Claude (`claude-fable-5`) review. Pair with `behavior-validator` for user-visible behavior checks.
+Runs a second-model code review, trying Codex (`gpt-6-astra`) before Claude (`claude-fable-5`), which it uses only when you pick it or Codex is unavailable.
 
 ### `babysit`
 
@@ -12,7 +12,7 @@ Watches an open pull request, fixes failing CI checks, waits out review bots (Co
 
 ### `blast-radius`
 
-Finds what a change breaks beyond its own diff, then proves the one fact its safety rests on by running real code instead of writing it up. Grades every safety claim on a five-step evidence ladder and marks anything it could not run as unproven. Wide changes go through a fixed three-model panel (`claude-fable-5`, `claude-opus-5`, `gpt-5.6-sol`) that runs the host's own model natively and reaches the rest through the Claude or Codex CLI.
+Finds what a change breaks beyond its own diff, then proves the one fact its safety rests on by running real code instead of writing it up. Grades every safety claim on a five-step evidence ladder and marks anything it could not run as unproven. Wide changes go through a fixed three-model panel (`claude-fable-5.1`, `claude-opus-5`, `gpt-6-astra`) that runs the host's own model natively and reaches the rest through the Claude or Codex CLI.
 
 ### `bro`
 
@@ -54,13 +54,13 @@ Keeps a project's verification skill and feature map current through source revi
 
 Coordinates multiple agents on large-scope tasks by delegating substantive work, running narrow read-only scouts in parallel, maintaining distinct ownership, and integrating results while keeping approvals with the user.
 
-### `repo-explorer`
-
-Clones and inspects external repositories in a reusable local exploration cache (`~/.explore/repos`) without cluttering the active workspace.
-
 ### `release-notes`
 
 Generates concise, evidence-based notes and updates only the body of the latest existing GitHub Release.
+
+### `repo-explorer`
+
+Clones and inspects external repositories in a reusable local exploration cache (`~/.explore/repos`) without cluttering the active workspace.
 
 ### `setup-code-quality`
 
