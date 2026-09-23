@@ -6227,6 +6227,7 @@ os.execv(target, [str(target), *sys.argv[1:]])
 
             args = argparse.Namespace(
                 commit=commit,
+                exclude=[],
                 prompt=[],
                 prompt_file=[],
                 dataset=[],
@@ -7192,6 +7193,52 @@ Path(sys.argv[sys.argv.index(flag) + 1]).write_text(json.dumps({
             self.assertEqual(output.encoding, stream.encoding)
             with self.assertRaises(io.UnsupportedOperation):
                 output.fileno()
+
+
+class ExcludePathspecTests(unittest.TestCase):
+    def setUp(self) -> None:
+        self.helper = load_helper()
+
+    def test_exclude_pathspecs_drop_generated_paths_from_every_target(self):
+        with tempfile.TemporaryDirectory() as tempdir:
+            repo = init_repo(Path(tempdir))
+            (repo / "src").mkdir()
+            (repo / "dist").mkdir()
+            (repo / "src" / "a.py").write_text("base()\n")
+            (repo / "dist" / "out.js").write_text("base\n")
+            git(repo, "add", ".")
+            git(repo, "commit", "-qm", "base")
+            base = git(repo, "rev-parse", "HEAD").strip()
+            (repo / "src" / "a.py").write_text("changed()\n")
+            (repo / "dist" / "out.js").write_text("generated\n")
+            git(repo, "add", ".")
+            git(repo, "commit", "-qm", "change")
+            for target in ("branch", "commit"):
+                captured = self.helper["build_bundle"](repo, target, base, "HEAD", excludes=("dist",))
+                self.assertIn("+changed()", captured.text)
+                self.assertIn("excluded pathspecs: dist", captured.text)
+                self.assertNotIn("dist/out.js", captured.text)
+                self.assertNotIn("generated", captured.text)
+                self.assertEqual(captured.paths, {"src/a.py"})
+            (repo / "src" / "a.py").write_text("staged()\n")
+            git(repo, "add", "src/a.py")
+            (repo / "dist" / "out.js").write_text("dirty generated\n")
+            (repo / "dist" / "new.js").write_text("untracked generated\n")
+            (repo / "src" / "new.py").write_text("untracked()\n")
+            captured = self.helper["local_bundle"](repo, excludes=("dist",))
+            self.assertIn("+staged()", captured.text)
+            self.assertIn("untracked()", captured.text)
+            self.assertNotIn("dist/", captured.text)
+            self.assertNotIn("generated", captured.text)
+            self.assertEqual(captured.paths, {"src/a.py", "src/new.py"})
+
+    def test_exclude_pathspecs_must_be_plain_relative_paths(self):
+        validate = self.helper["validate_exclude_pathspecs"]
+        self.assertEqual(validate([]), ())
+        self.assertEqual(validate(["dist", "build/"]), ("dist", "build/"))
+        for bad in ("", ":(glob)dist", "-dist", "/tmp/dist", "../dist", "dist/../src"):
+            with self.subTest(bad=bad), self.assertRaises(SystemExit):
+                validate([bad])
 
 
 if __name__ == "__main__":
