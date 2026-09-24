@@ -19,6 +19,15 @@ This skill watches exactly one PR:
 2. Otherwise use the current branch's open PR (`gh pr view --json number` resolves it).
 3. If the current branch has no PR yet: `git push -u origin HEAD`, then `gh pr create --fill`, and watch the PR just created. Never do this from `main`. With multiple commits on the branch, `--fill` titles the PR after the branch name — pass an explicit conventional-style `--title` summarizing the commits instead. Leave the body to `--fill`; coderabbit inserts its summary between its own markers without touching the rest.
 
+### Stacked branches
+
+If `gh stack view --json` exits 0, the branch is a layer of a stack and the whole stack is the target:
+
+- Open missing PRs with `gh stack submit --auto --open` (never plain `--auto` — drafts are skipped by coderabbit and pullfrog), then give each new PR a conventional `--title` with `gh pr edit`.
+- Watch every open PR in the stack each round, not just the current branch's.
+- Fix a finding on the layer that owns it: `gh stack checkout <branch>`, commit, `gh stack rebase --upstack`, `gh stack top`, `gh stack push`. Never commit a lower layer's fix on a higher branch.
+- A restack force-pushes every layer above the fix, which restarts CI and coderabbit/pullfrog on each of them; comment `@greptile-apps review` on each one.
+
 ## Fetch PR state
 
 Bot findings live on three surfaces; read all of them every round:
@@ -44,7 +53,7 @@ coderabbit and pullfrog run automatically on every push; greptile auto-runs only
 
 ## Triage, in priority order
 
-1. **Merge conflicts** (`mergeStateStatus == DIRTY`): rebase onto `main`, resolve, force-push. This is a solo-maintainer repo — force-pushing your own PR branch is fine.
+1. **Merge conflicts** (`mergeStateStatus == DIRTY`): rebase onto `main`, resolve, force-push. This is a solo-maintainer repo — force-pushing your own PR branch is fine. In a stack, run `gh stack rebase` instead (never rebase a layer onto `main` directly), rebuild `dist/` on conflicts as AGENTS.md describes, then `gh stack push`.
 2. **Failing checks**: reproduce locally before pushing anything — CI is fully reproducible except Windows. Map the failing step to its local command:
    - *Check source* → `bun run check` (always the bundle, never its sub-steps separately)
    - *Verify E2E stability* → `bun run test:e2e:stability` — a failure here is usually a flaky test; fix the flake, never retry CI
