@@ -34,6 +34,38 @@ Creates coherent Conventional Commits with concise, high-signal context. Scopes 
 
 Generates a project-local verification skill that launches and drives the real app, captures evidence, and maps user-facing features for later verification.
 
+### `elevenlabs-dubbing`
+
+Dubs audio and video into other languages with the ElevenLabs Dubbing API while preserving the original speakers' voices.
+
+### `elevenlabs-music`
+
+Generates instrumental music and songs with the ElevenLabs Music API, using prompts or composition plans.
+
+### `elevenlabs-setup-api-key`
+
+Helps configure and validate an ElevenLabs API key for direct API, SDK, or CLI use.
+
+### `elevenlabs-sound-effects`
+
+Generates sound effects from text descriptions, with controls for duration, looping, and prompt adherence.
+
+### `elevenlabs-speech-to-text`
+
+Transcribes audio and video with ElevenLabs Scribe, including speaker identification and word timestamps.
+
+### `elevenlabs-text-to-speech`
+
+Converts text to speech for voiceovers and other spoken audio in multiple languages.
+
+### `elevenlabs-voice-changer`
+
+Changes the voice in an existing recording while preserving its timing and delivery.
+
+### `elevenlabs-voice-isolator`
+
+Removes background noise and isolates speech or vocals from audio recordings.
+
 ### `grill-me`
 
 Stress-tests plans and designs through relentless direct questioning until reaching shared understanding across every branch of the decision tree.
