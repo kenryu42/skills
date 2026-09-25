@@ -13,6 +13,18 @@ Transcribe audio to text with Scribe v2 - supports 90+ languages, speaker diariz
 
 > **Setup:** See [Installation Guide](references/installation.md). For JavaScript, use `@elevenlabs/*` packages only.
 
+## Local output and remote cleanup
+
+Default: retain outputs locally and remove this task's remote generations after saving them. This also applies to previews, retries, test clips and streamed output. The examples below show generation only; complete these cleanup steps before reporting success.
+
+1. Capture response headers and returned resource IDs alongside the local output path. Finish the download or stream, then verify the actual audio/video decodes or the transcript parses and contains the expected result. A filename or nonzero size alone is insufficient.
+2. After verification and any dependent calls finish, delete only remote resources positively identified as created by this task. Keep IDs needed for cleanup locally until deletion is confirmed. Do not delete on a failed local save, while a dependent generation still needs the resource, or based only on voice, prompt or recency. Never bulk-delete unrelated history or voice profiles.
+3. Verify removal using the resource lookup or a fully paginated, appropriately filtered listing. An authentication error or missing item on just the first page is not proof. If cleanup fails, retry once for a transient failure, then report the remaining IDs and reason. Preserve local files.
+
+Do not treat HTTP success with `enable_logging=false` as proof of zero retention. Our Creator-plan test accepted that parameter but still stored downloadable audio. Use it only where supported and verify the outcome. Report verified dashboard/API removal, not guaranteed erasure from provider logs or backups. If deletion is unsupported or cannot be verified, report cleanup as incomplete.
+
+Save transcript text, structured JSON and any requested timestamps/subtitles locally. For a returned `transcription_id`, use [`DELETE /v1/speech-to-text/transcripts/{transcription_id}`](https://elevenlabs.io/docs/api-reference/speech-to-text/delete) and verify the exact resource is unavailable via the corresponding GET. For realtime sessions without a deletable transcript ID, consult the current endpoint's retention support; do not invent a history ID or claim that closing the socket deletes server data.
+
 ## Quick Start
 
 ### Python

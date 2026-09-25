@@ -15,6 +15,20 @@ Generate music from text prompts - supports instrumental tracks, songs with lyri
 
 All examples below default to `music_v2`, the current generation model. Pass `model_id="music_v1"` only when explicitly requested to.
 
+## Local output and remote cleanup
+
+Default: retain outputs locally and remove this task's remote generations after saving them. This also applies to previews, retries, test clips and streamed output. The examples below show generation only; complete these cleanup steps before reporting success.
+
+1. Capture response headers and returned resource IDs alongside the local output path. Finish the download or stream, then verify the actual audio/video decodes or the transcript parses and contains the expected result. A filename or nonzero size alone is insufficient.
+2. After verification and any dependent calls finish, delete only remote resources positively identified as created by this task. Keep IDs needed for cleanup locally until deletion is confirmed. Do not delete on a failed local save, while a dependent generation still needs the resource, or based only on voice, prompt or recency. Never bulk-delete unrelated history or voice profiles.
+3. Verify removal using the resource lookup or a fully paginated, appropriately filtered listing. An authentication error or missing item on just the first page is not proof. If cleanup fails, retry once for a transient failure, then report the remaining IDs and reason. Preserve local files.
+
+Do not treat HTTP success with `enable_logging=false` as proof of zero retention. Our Creator-plan test accepted that parameter but still stored downloadable audio. Use it only where supported and verify the outcome. Report verified dashboard/API removal, not guaranteed erasure from provider logs or backups. If deletion is unsupported or cannot be verified, report cleanup as incomplete.
+
+The [public history API](https://elevenlabs.io/docs/api-reference/history/list) explicitly excludes Music and SFX. An empty history response does not establish that a song was not saved. Default `store_for_inpainting` to false where supported; this controls inpainting storage, not all provider retention. Set it true or upload a song only when the requested editing workflow requires it, retaining the returned `song_id` for cleanup. A finetune deletion endpoint does not delete a generated song.
+
+After saving locally, use an available authenticated dashboard to delete only this task's identified generations/stored songs and verify removal. If dashboard access is unavailable, report the outstanding cleanup and affected IDs; do not invent a song-delete endpoint or promise automatic API cleanup. Recheck current official documentation if API support changes.
+
 ## Quick Start
 
 ### Python

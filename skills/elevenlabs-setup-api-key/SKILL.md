@@ -10,6 +10,12 @@ Requires internet access and `ELEVENLABS_API_KEY`. Use the direct API, SDK, or C
 
 Guide the user through obtaining and configuring an ElevenLabs API key.
 
+## Retention default
+
+Validate credentials with a read-only account request; do not generate test media just to check a key. Any explicitly needed generation test follows the corresponding generation skill's save, verify and remote-cleanup steps. Ensure credentials can perform the required history/resource reads and deletes, and report missing permissions without broadening key permissions automatically. Never print or persist the key in cleanup records.
+
+Do not infer zero-retention support from an accepted `enable_logging=false` request. Our Creator-plan test still produced a downloadable history item. Verify the actual result and use the applicable skill's cleanup procedure. Local retention is the default; unsupported cleanup must be reported.
+
 ## Workflow
 
 ### Step 0: Check for an existing API key first
