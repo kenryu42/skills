@@ -118,6 +118,10 @@ Clones and inspects external repositories in a reusable local exploration cache 
 
 Sets up or migrates compatible JavaScript and TypeScript projects to Oxlint, type-aware linting, Oxfmt, jscpd, Knip, and TypeScript 7 through a shared check script. Replaces overlapping tools while preserving unique checks and leaves incompatible projects unchanged.
 
+### `show-me-your-work`
+
+Keeps a reviewable TSV decision log for long-running work, audits it against the run's own Claude Code, Codex, or Amp transcript, and gets a cross-model review of the trail through the `arena` panel. Adapted from pstack.
+
 ### `sponsor-miner`
 
 Finds and verifies potential sponsors for a GitHub repository by mining peer repos' sponsor data (README sponsor sections, sponsorkit SVGs, the GitHub Sponsors API, and Open Collective), ranking companies by cross-repo sponsorship frequency. Outputs `companies-ranked.csv` and a `verified-leads.csv` for outreach planning.

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Show Me Your Work"
+  short_description: "Keep and audit a reviewable decision log for long-running work"
+policy:
+  allow_implicit_invocation: false
