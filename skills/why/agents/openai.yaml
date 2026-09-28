@@ -1,0 +1,5 @@
+interface:
+  display_name: "Why"
+  short_description: "Investigate why code has its shape, with cited evidence"
+policy:
+  allow_implicit_invocation: false

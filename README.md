@@ -2,6 +2,14 @@
 
 ## Skills
 
+### `architect`
+
+Sketches types, signatures, and module structure before code, runs the design through `arena`, then implements against the chosen sketch and scraps it when the shape proves wrong. Adapted from pstack.
+
+### `arena`
+
+Runs the same task on a fixed three-model panel (`claude-fable-5.1`, `claude-opus-5`, `gpt-6-astra`), cross-judges the candidates, picks a base, and grafts the strongest parts of the others into it. Adapted from pstack.
+
 ### `autoreview`
 
 Runs a second-model code review, trying Codex (`gpt-6-astra`) before Claude (`claude-fable-5`), which it uses only when you pick it or Codex is unavailable.
@@ -70,9 +78,17 @@ Removes background noise and isolates speech or vocals from audio recordings.
 
 Stress-tests plans and designs through relentless direct questioning until reaching shared understanding across every branch of the decision tree.
 
+### `how`
+
+Explains how a subsystem works, using parallel read-only explorers for wide questions and one explainer for narrow ones. Adapted from pstack.
+
 ### `improve`
 
 Surveys any codebase as a senior advisor and produces prioritized, self-contained implementation plans for other models/agents to execute. Strictly read-only on source code — never implements, fixes, or refactors anything itself.
+
+### `interrogate`
+
+Adversarially reviews a change with one reviewer per arm of the `arena` panel, then sorts findings into act on, consider, noted, and dismissed. Adapted from pstack.
 
 ### `is`
 
@@ -81,6 +97,10 @@ Analyzes GitHub issues (bugs or feature requests) by verifying actual behavior a
 ### `maintain-verification-skill`
 
 Keeps a project's verification skill and feature map current through source review and live verification of every mapped feature.
+
+### `no-comments`
+
+Spawns Comment Sicko to strip comments from the diff or given files, keeps only license headers, public API docs, and constraints we cannot change, fixes the root causes the comments were covering, and offers to encode claimed constraints as types, tests, or lints. Needs `how`, `why`, `architect`, and their principle skills installed alongside. Run `scripts/install-agents.sh` from the installed skill to add Comment Sicko as a Claude Code and Codex custom agent; Amp and other hosts spawn it from the prompt file. Adapted from pstack.
 
 ### `orchestrate`
 
@@ -109,3 +129,7 @@ Runs coverage suites and adds direct, test-only quick wins until no eligible qui
 ### `ultra`
 
 Runs a Claude Code's manual multi-agent build workflow: Fable plans, investigates, designs, reviews, and makes decisions; Opus implements, fixes, and validates. A Fable review and Opus fix loop closes the workflow.
+
+### `why`
+
+Investigates why code has its shape by querying git history and every available MCP evidence source in parallel, then returns a cited read that separates findings from inference. Adapted from pstack.

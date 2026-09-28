@@ -1,0 +1,5 @@
+interface:
+  display_name: "How"
+  short_description: "Explain how a subsystem works with parallel explorers"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,5 @@
+interface:
+  display_name: "No Comments"
+  short_description: "Strip comments via Comment Sicko and fix the root causes they hid"
+policy:
+  allow_implicit_invocation: false

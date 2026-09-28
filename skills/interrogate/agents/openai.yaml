@@ -1,0 +1,5 @@
+interface:
+  display_name: "Interrogate"
+  short_description: "Adversarial three-model review of a change"
+policy:
+  allow_implicit_invocation: false
