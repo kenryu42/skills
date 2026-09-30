@@ -134,6 +134,10 @@ Finds and verifies potential sponsors for a GitHub repository by mining peer rep
 
 Runs coverage suites and adds direct, test-only quick wins until no eligible quick wins remain. Reports added tests and opportunities that require approval.
 
+### `typescript-best-practices`
+
+Guides TypeScript work with discriminated unions, branded types, boundary validation, schema-derived types, and exhaustive handling. Applies when reading or editing `.ts` or `.tsx` files and includes examples of the patterns. Requires the `type-system-discipline` principle skill.
+
 ### `ultra`
 
 Runs a Claude Code's manual multi-agent build workflow: Fable plans, investigates, designs, reviews, and makes decisions; Opus implements, fixes, and validates. A Fable review and Opus fix loop closes the workflow.
