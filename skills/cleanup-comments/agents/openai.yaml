@@ -1,0 +1,5 @@
+interface:
+  display_name: "Cleanup Comments"
+  short_description: "Plan a behavior-free comment strip and the fixes it exposes"
+policy:
+  allow_implicit_invocation: false

@@ -26,6 +26,10 @@ Finds what a change breaks beyond its own diff, then proves the one fact its saf
 
 Restates the last message in plain human language without jargon.
 
+### `cleanup-comments`
+
+Plans the removal of a project's existing comments in any language. It takes the inventory from the project's comment lint or from ast-grep, has Comment Sicko classify every comment in batches, and proves the strip patch changes no code with a parser-based verifier per language: the bundled `scripts/verify-strip-js.mjs` for JavaScript and TypeScript, or one written and self-tested for the run. The result is a `ship-stack` plan: one strip layer, then layers that make the code say what the deleted comments said. Stops at the plan for approval. Needs `no-comments` installed alongside.
+
 ### `codex-first`
 
 Delegates substantial implementation, fixing, code exploration, rebasing, and PR landing to Codex CLI while Claude handles design, decisions, review, and verification.
