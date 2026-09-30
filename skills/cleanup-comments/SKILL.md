@@ -10,14 +10,23 @@ Turn a project full of existing comments into an approved plan for a `ship-stack
 
 This skill only plans. It never changes the project's checkout, branches, or remote. All stripping happens in a temporary worktree, and the plan stops for approval before any PR exists.
 
+## Caller mode
+
+A setup skill such as `setup-ts-gate` runs this skill as its comment step. It passes its worktree, with the comment lint installed, and a baseline commit in it. In caller mode:
+
+- skip "Before you start", except finding the languages in scope;
+- in step 2, work in the caller's worktree instead of creating one;
+- in step 4, collect the `allow` entries without adding them, skip the check command, and commit the strip without saving a patch or removing the worktree;
+- skip steps 5 and 6. Return the strip commit, the keep and temporary entries (file, exact text, class, and for keeps the exception and its source), the `MUST KILL` items with their deleted comment text, and the verifiers used.
+
 Sibling skills live next to this one. `../no-comments/SKILL.md` means the `no-comments` skill in the directory that holds this skill. Read a sibling's `SKILL.md` and follow the step it names. `ship-stack` is a Claude Code skill; follow its plan rules and template.
 
 ## Before you start
 
 - The working tree must be clean on an up-to-date trunk. Record the trunk commit as the plan's baseline.
 - Find the project's check command from its agent instructions, package scripts, or CI, and the languages it contains. Only a language you can inventory (step 1) and verify (step 3) is in scope; report the rest.
-- If the project has a comment lint, such as the `lint:comments` script `setup-code-quality` installs, it drives the inventory and layer 1 must turn it green. In a workspace, run it from the package directory that owns it.
-- For a TypeScript project without a comment lint, stop and recommend running `setup-code-quality` (`../setup-code-quality/SKILL.md`) and merging it first. Its lint gives layer 1 a green target, its `fix-comment-lint` skill checks the agents fixing later layers, it translates old suppressions once instead of after the strip, and it installs the `oxc-parser` the verifier needs. Its `check` fails on the existing comments until layer 1 lands, so run this skill right after it merges, or hold its merge until layer 1 is ready. If the user declines, continue without a lint.
+- If the project has a comment lint, such as the `lint:comments` script `setup-ts-gate` installs, it drives the inventory and layer 1 must turn it green. In a workspace, run it from the package directory that owns it.
+- For a TypeScript project without a comment lint, stop and recommend `setup-ts-gate` (`../setup-ts-gate/SKILL.md`) instead. It installs the gate, runs this skill as its comment step, and clears every other finding in the same plan. If the user declines, continue without a lint.
 - Choose the plan file's location by `ship-stack`'s rule. Keep the inventory, the strip patch, and any verifier you write next to it, untracked.
 - Keep the laptop responsive: at most 3 Comment Sicko batches at once, and run installs, checks, and scans under `nice -n 15`.
 
@@ -51,7 +60,7 @@ Each language in scope needs a verifier that compares every changed file with th
 - added, deleted, or renamed files, and changes to files not in the language;
 - a deleted comment that a tool reads: lint and type suppressions, compiler or build directives, coverage and formatter pragmas, bundler or code-generation markers, and license markers.
 
-For JavaScript and TypeScript, use `node <this skill's directory>/scripts/verify-strip-js.mjs <baseline>` from the package directory in the worktree. It resolves `oxc-parser` from the project, as `setup-code-quality` installs it. If the project lacks it, install it in a scratch directory outside the worktree and run the verifier with `NODE_PATH=<scratch>/node_modules`, so the project's manifest and lockfile stay untouched.
+For JavaScript and TypeScript, use `node <this skill's directory>/scripts/verify-strip-js.mjs <baseline>` from the package directory in the worktree. It resolves `oxc-parser` from the project, as `setup-ts-gate` installs it. If the project lacks it, install it in a scratch directory outside the worktree and run the verifier with `NODE_PATH=<scratch>/node_modules`, so the project's manifest and lockfile stay untouched.
 
 For another language, write the verifier before you strip, and save it next to the plan. Build it on the language's parser, such as Python's `ast` module, which drops comments, or Go's `go/parser` without `ParseComments`. Research the language's tool-read comments, such as Python's `# type: ignore`, `# noqa`, and `# pragma: no cover`, or Go's `//go:` directives, `//nolint`, and cgo preambles. Where comments are part of the tree, such as Rust's `///` doc comments, deleting them is a code change the verifier must report. Before trusting it, run it on a small hand-made strip: a pure deletion passes, and a code change, an added comment, and a deleted tool-read comment each fail. If the language has no usable parser, require identical build output instead. If neither is possible, leave the language out of scope rather than strip it unproven.
 
@@ -84,7 +93,7 @@ Write the plan with `ship-stack`'s template.
 
   Behavior-preserving items keep every existing test and assertion unchanged. Name the temporary allowlist entries each layer deletes.
 - **Working rules:** agents add no comments, follow the repository's comment-fix skill if it has one (such as `.agents/skills/fix-comment-lint/SKILL.md`), and recover a deleted comment's text with `git show <layer 1 commit> -- <file>`.
-- **Open decisions:** approval of the permanent allowlist entries, with a recommended default for each; any `MUST KILL` item that needs a design choice; and, without a comment lint, adding one so comments do not return, through `setup-code-quality` for TypeScript. Items that cannot be fixed yet go under "Not in the stack".
+- **Open decisions:** approval of the permanent allowlist entries, with a recommended default for each; any `MUST KILL` item that needs a design choice; and, without a comment lint, adding one so comments do not return, through `setup-ts-gate` for TypeScript. Items that cannot be fixed yet go under "Not in the stack".
 
 ## 6. Stop for approval
 

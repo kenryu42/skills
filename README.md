@@ -28,7 +28,7 @@ Restates the last message in plain human language without jargon.
 
 ### `cleanup-comments`
 
-Plans the removal of a project's existing comments in any language. It takes the inventory from the project's comment lint or from ast-grep, has Comment Sicko classify every comment in batches, and proves the strip patch changes no code with a parser-based verifier per language: the bundled `scripts/verify-strip-js.mjs` for JavaScript and TypeScript, or one written and self-tested for the run. The result is a `ship-stack` plan: one strip layer, then layers that make the code say what the deleted comments said. Stops at the plan for approval. Needs `no-comments` installed alongside.
+Plans the removal of a project's existing comments in any language. It takes the inventory from the project's comment lint or from ast-grep, has Comment Sicko classify every comment in batches, and proves the strip patch changes no code with a parser-based verifier per language: the bundled `scripts/verify-strip-js.mjs` for JavaScript and TypeScript, or one written and self-tested for the run. The result is a `ship-stack` plan: one strip layer, then layers that make the code say what the deleted comments said. Stops at the plan for approval. `setup-ts-gate` runs it as its comment step. Needs `no-comments` installed alongside.
 
 ### `codex-first`
 
@@ -118,9 +118,9 @@ Generates concise, evidence-based notes and updates only the body of the latest 
 
 Clones and inspects external repositories in a reusable local exploration cache (`~/.explore/repos`) without cluttering the active workspace.
 
-### `setup-code-quality`
+### `setup-ts-gate`
 
-Sets up or migrates TypeScript projects to Oxlint, type-aware linting, Oxfmt, jscpd, Knip, TypeScript 7, and a comment lint through a shared check script. The comment lint rejects code comments except tool directives and maintainer-approved entries, and installs a repo-local skill that tells agents how to fix its failures. Replaces overlapping tools while preserving unique checks and leaves incompatible projects unchanged.
+Puts a TypeScript project behind a static gate that stops agents from landing bad code: Oxlint with type-aware rules, Oxfmt, jscpd, Knip, TypeScript 7, and a comment lint, all run by one `check` script. Installs or migrates the tooling in a temporary worktree, clears every existing finding locally (comments through `cleanup-comments`), and writes a `ship-stack` plan that lands the fixes first and the gate last, so trunk never goes red. Stops at the plan for approval. Installs a repo-local `fix-comment-lint` skill that tells agents how to fix comment lint failures.
 
 ### `show-me-your-work`
 

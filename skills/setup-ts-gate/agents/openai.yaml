@@ -1,0 +1,5 @@
+interface:
+  display_name: "Setup TS Gate"
+  short_description: "Gate a TS project with Oxc, Knip, jscpd, TS 7 and a comment lint"
+policy:
+  allow_implicit_invocation: false
