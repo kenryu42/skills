@@ -138,6 +138,10 @@ Runs coverage suites and adds direct, test-only quick wins until no eligible qui
 
 Runs a Claude Code's manual multi-agent build workflow: Fable plans, investigates, designs, reviews, and makes decisions; Opus implements, fixes, and validates. A Fable review and Opus fix loop closes the workflow.
 
+### `unslop`
+
+Edits writing to remove AI patterns, jargon, and filler while preserving meaning and the intended tone.
+
 ### `why`
 
 Investigates why code has its shape by querying git history and every available MCP evidence source in parallel, then returns a cited read that separates findings from inference. Adapted from pstack.
