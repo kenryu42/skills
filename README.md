@@ -116,7 +116,7 @@ Clones and inspects external repositories in a reusable local exploration cache 
 
 ### `setup-code-quality`
 
-Sets up or migrates compatible JavaScript and TypeScript projects to Oxlint, type-aware linting, Oxfmt, jscpd, Knip, and TypeScript 7 through a shared check script. Replaces overlapping tools while preserving unique checks and leaves incompatible projects unchanged.
+Sets up or migrates TypeScript projects to Oxlint, type-aware linting, Oxfmt, jscpd, Knip, TypeScript 7, and a comment lint through a shared check script. The comment lint rejects code comments except tool directives and maintainer-approved entries, and installs a repo-local skill that tells agents how to fix its failures. Replaces overlapping tools while preserving unique checks and leaves incompatible projects unchanged.
 
 ### `show-me-your-work`
 

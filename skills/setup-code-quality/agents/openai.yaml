@@ -1,5 +1,5 @@
 interface:
   display_name: "Setup Code Quality"
-  short_description: "Set up Oxc, Knip, duplication and TypeScript checks"
+  short_description: "Set up Oxc, Knip, duplication, comment and TypeScript checks"
 policy:
   allow_implicit_invocation: false
