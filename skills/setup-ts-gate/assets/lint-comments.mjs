@@ -7,6 +7,7 @@ import { parseSync } from 'oxc-parser';
 const CONFIG_PATH = 'scripts/comment-lint.json';
 const FIX_SKILL_PATH = '.agents/skills/fix-comment-lint/SKILL.md';
 
+const HASHBANG = /^#!/;
 const KNIP_INTERNAL_TAG = /^\/\*\* @internal \*\/$/;
 const TYPESCRIPT_REFERENCE = /^\/\/\/ <reference (?:types|path|lib)="[^"]+" \/>$/;
 const LINT_SUPPRESSION_WITH_REASON = /^\/\/ oxlint-disable-next-line [\w@/-]+(?:, *[\w@/-]+)* -- \S/;
@@ -15,6 +16,7 @@ const JSX_LINT_SUPPRESSION_WITH_REASON =
 const EXPECTED_TYPE_ERROR_WITH_REASON = /^\/\/ @ts-expect-error \S/;
 const JSX_EXPECTED_TYPE_ERROR_WITH_REASON = /^\/\* @ts-expect-error \S.* \*\/$/;
 const COMMENTS_ALLOWED_WITHOUT_ENTRY = [
+  HASHBANG,
   KNIP_INTERNAL_TAG,
   TYPESCRIPT_REFERENCE,
   LINT_SUPPRESSION_WITH_REASON,
@@ -37,7 +39,7 @@ const files = execFileSync('git', ['ls-files', '-z', '--cached', '--others', '--
 })
   .split('\0')
   .filter((path) => SOURCE_FILE.test(path) && !isExcluded(path) && existsSync(path))
-  .sort()
+  .toSorted()
   .map((path) => {
     const text = readFileSync(path, 'utf8');
     return { path, text, parsed: parseSync(path, text) };

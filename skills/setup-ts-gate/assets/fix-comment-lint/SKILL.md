@@ -18,6 +18,7 @@ description: 'Use in this repository when `<run> lint:comments` or `<run> check`
 
 The check accepts these comments without an `allow` entry:
 
+- a `#!` hashbang on the first line of an executable script (the OS reads it);
 - a bare `/** @internal */` with nothing else in it, on an export that only tests use (Knip reads this tag);
 - `/// <reference types="…" />`, with `types`, `path` or `lib`;
 - `// oxlint-disable-next-line <rules> -- <reason>`, with comma-separated rule names and a non-empty reason;

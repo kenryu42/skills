@@ -1,9 +1,9 @@
 ## Comments
 
 - Do not write code comments. Say it in code: a clearer name, a named value, a type.
-- Only these directives are allowed: a bare `/** @internal */`, `/// <reference … />`,
-  `// oxlint-disable-next-line <rules> -- <reason>` and `// @ts-expect-error <reason>`, with the
-  last two written as `{/* … */}` inside JSX.
+- Only these directives are allowed: a `#!` hashbang on a file's first line, a bare
+  `/** @internal */`, `/// <reference … />`, `// oxlint-disable-next-line <rules> -- <reason>` and
+  `// @ts-expect-error <reason>`, with the last two written as `{/* … */}` inside JSX.
 - A fact about an external tool that code cannot express stays only when the maintainer adds it to
   the `allow` map in `scripts/comment-lint.json`. Never add entries there or to its `exclude` list
   yourself. Deleting an entry whose comment is gone is fine.
