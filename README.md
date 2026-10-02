@@ -10,10 +10,6 @@ Sketches types, signatures, and module structure before code, runs the design th
 
 Runs the same task on a fixed three-model panel (`claude-fable-5.1`, `claude-opus-5`, `gpt-6-astra`), cross-judges the candidates, picks a base, and grafts the strongest parts of the others into it. Adapted from pstack.
 
-### `autoreview`
-
-Runs a second-model code review, trying Codex (`gpt-6-astra`) before Claude (`claude-fable-5`), which it uses only when you pick it or Codex is unavailable.
-
 ### `babysit`
 
 Watches an open pull request, fixes failing CI checks, waits out review bots (CodeRabbit, Greptile, Pullfrog), handles straightforward findings, and drives the PR to a mergeable state without re-prompting.
