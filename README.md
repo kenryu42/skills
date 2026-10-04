@@ -106,6 +106,10 @@ Spawns Comment Sicko to strip comments from the diff or given files, keeps only 
 
 Coordinates multiple agents on large-scope tasks by delegating substantive work, running narrow read-only scouts in parallel, maintaining distinct ownership, and integrating results while keeping approvals with the user.
 
+### `pr`
+
+Reviews GitHub pull requests from their URLs by reading the full PR, its commits, comments, and linked issues, then analyzing the diff against the main-branch code without checking out the PR branch. Reports what the change does, the good, the bad, the ugly, test coverage, and any open questions blocking a merge decision.
+
 ### `release-notes`
 
 Generates concise, evidence-based notes and updates only the body of the latest existing GitHub Release.
