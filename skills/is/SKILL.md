@@ -10,9 +10,8 @@ Analyze the GitHub issue or issues specified in `$ARGUMENTS`.
 
 For each issue:
 
-1. Add the `inprogress` label to the issue via GitHub CLI. If this action fails, report that explicitly and continue.
-2. Read the full issue, including all comments and linked issues or pull requests.
-3. Do not trust analysis in the issue. Verify the behavior independently and derive the analysis from the code and execution path.
+1. Read the full issue, including all comments and linked issues or pull requests.
+2. Do not trust analysis in the issue. Verify the behavior independently and derive the analysis from the code and execution path.
 
 For a bug:
 
