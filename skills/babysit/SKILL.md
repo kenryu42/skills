@@ -60,7 +60,7 @@ coderabbit and pullfrog run automatically on every push; greptile auto-runs only
    - *Reject stale generated artifacts* → `bun run build && git diff -- dist assets/cc-safety-net.schema.json THIRD_PARTY_LICENSES.txt`, then commit the regenerated files
    - *Windows Tests* → no local repro on macOS; read `gh run view <run-id> --log-failed` and reason about platform-specific paths/behavior
    - knip failures follow the three-case rule in AGENTS.md (never `ignoreIssues`); jscpd duplicate failures mean dedupe; coverage failures mean add real tests.
-3. **Bot findings**: act only on feedback that holds up against `REVIEW.md` and the Scope Discipline rules in AGENTS.md — smallest fix per finding, a finding is never a mandate to build a framework. coderabbit is nitpick-heavy; filter it hardest. When a finding hinges on a judgement call or is unclear, don't guess — reply on the thread with what you would have done and defer it.
+3. **Bot findings**: act only on feedback that holds up against `REVIEW.md` and the Scope Discipline rules in AGENTS.md — smallest fix per finding, a finding is never a mandate to build a framework. coderabbit is nitpick-heavy; filter it hardest. When a finding hinges on a judgement call or is unclear, don't guess — reply on the thread with what you would have done and defer it. Bot findings count toward REVIEW.md's one-remediation-pass limit, the same as autoreview findings. A finding on a reviewer-constructed command shape gets only the remedy REVIEW.md allows for it, often none: answer it on the thread with its classification instead of fixing it.
 
    Findings still expect red–green TDD for behavior fixes: failing test first, then the fix.
 
