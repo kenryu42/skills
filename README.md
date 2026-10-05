@@ -122,6 +122,10 @@ Clones and inspects external repositories in a reusable local exploration cache 
 
 Puts a TypeScript project behind a static gate that stops agents from landing bad code: Oxlint with type-aware rules, Oxfmt, jscpd, Knip, TypeScript 7, and a comment lint, all run by one `check` script. Installs or migrates the tooling in a temporary worktree, clears every existing finding locally (comments through `cleanup-comments`), and writes a `ship-stack` plan that lands the fixes first and the gate last, so trunk never goes red. Stops at the plan for approval. Installs a repo-local `fix-comment-lint` skill that tells agents how to fix comment lint failures.
 
+### `ship-stack`
+
+Ships a large implementation, refactor, or batch of fixes as a `gh stack` of small PRs, one layer at a time. Plans the split into a resumable plan file and gets approval, then runs one Workflow per layer to implement it red–green, with one autoreview fix pass and one confirmation round, submits the layer, and drives it to green with `babysit` before starting the next. Needs `gh-stack`, `babysit`, `autoreview`, and `commit-with-context` installed alongside.
+
 ### `show-me-your-work`
 
 Keeps a reviewable TSV decision log for long-running work, audits it against the run's own Claude Code, Codex, or Amp transcript, and gets a cross-model review of the trail through the `arena` panel. Adapted from pstack.
