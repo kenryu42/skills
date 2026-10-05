@@ -162,7 +162,7 @@ For each layer:
   on the new HEAD. If the repo's review rules set a different cap or limit which remedies are
   allowed, follow them. The layer is clean when the confirmation round is `scoped-clean`, or when
   every remaining finding is one you already rejected. Otherwise stop and report the remaining
-  findings unfixed; the manager decides. Also stop and report if a round is `incomplete` or the
+  findings unfixed; the manager decides under the repo's rules. Also stop and report if a round is `incomplete` or the
   reviewer is unavailable. Each extra round of patching tends to expose the next finding, so never
   start a third round on your own.
 - **Stop at the commit.** No push, no `gh stack` commands, no PR creation. Stack state has one
@@ -187,12 +187,22 @@ autoreview: babysit's review bots already cover finding fixes.
 Stop, update the plan file, and report to the user when any of these happen:
 
 - `babysit` stops without converging.
-- A workflow reports work it could not finish, or a question.
-- A layer's autoreview cannot reach clean.
-- A fix would force a design choice, or a finding shows the split itself is wrong.
+- A workflow reports a question that neither the repo's rules nor a defensible default answers.
 - A step needs the user: merging, publishing outside the repo, credentials, or approval for a gated
   command.
 - Every layer is green.
+
+Decide everything else yourself, record the decision and its reason in the plan file, and keep
+going. In particular:
+
+- **Findings left after the review cap** follow the repo's review rules. Without such rules, fix a
+  regression against the trunk, and record anything else as a known gap in the PR description.
+- **A wrong split or order found before its PRs exist** is yours to fix: park the commits on a
+  branch, rebuild the stack, and continue.
+- **A measured cost within the repo's stated threshold** is accepted and recorded, not asked about.
+
+When you have a recommendation, act on it. Asking the user to confirm a choice you would make anyway
+only stalls the stack.
 
 **Never merge.** Merging the stack is the user's decision. When they are ready, the `gh-stack`
 skill covers `gh stack merge`.
