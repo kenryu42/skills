@@ -28,24 +28,38 @@ If `gh stack view --json` exits 0, the branch is a layer of a stack and the whol
 - Fix a finding on the layer that owns it: `gh stack checkout <branch>`, commit, `gh stack rebase --upstack`, `gh stack top`, `gh stack push`. Never commit a lower layer's fix on a higher branch.
 - A restack force-pushes every layer above the fix, which restarts CI and coderabbit/pullfrog on each of them; comment `@greptile-apps review` on each one.
 
-## Fetch PR state
+## Wait for CI and the bots
 
-Bot findings live on three surfaces; read all of them every round:
+After every push, run `scripts/wait-for-bots.sh <number>` from this skill's directory in the background, and act when it exits. Never write your own poll loop or `sleep` to wait on CI or bots. It re-reads the head commit every 60 s and exits once CI has finished and every installed bot has reported on that head, or after 40 min (`--timeout <min>`):
 
-```bash
-gh pr view <number> --json number,title,state,mergeable,mergeStateStatus,statusCheckRollup,comments,reviews
-gh api repos/{owner}/{repo}/pulls/<number>/comments   # inline diff comments (coderabbit's findings live here)
+```text
+PR #226 head 9e241fda (OPEN, merge CLEAN)
+ci: passing
+coderabbit: paused (Review paused)
+greptile: done (success)
+pullfrog: done (success)
+fix commits since first bot review: 7
+settled
 ```
 
-## The review bots
+Exit 0 means `settled`, 2 means still waiting (the last line names on what), 1 means `gh` failed. Where background commands aren't available (Codex heartbeats, `loop` ticks), run it with `--once` on each tick instead.
 
-coderabbit and pullfrog run automatically on every push; greptile auto-runs only on its first review of a PR. Do not judge readiness until each has reported on the latest push (or timed out, ~40 min):
+It waits only on bots that reported on one of the repo's last 10 PRs; the rest show `not installed`. Readiness is judged per bot on the head commit:
 
-| Bot | Findings surface | Done signal | Typical latency |
-| --- | --- | --- | --- |
-| `coderabbitai` | Inline diff comments (`coderabbitai[bot]`) in a COMMENTED review | Walkthrough/summary issue comment; a review appears only when it has findings | ~10 min |
-| `greptile-apps` | "Greptile Summary" issue comment | That comment | ~5 min |
-| `pullfrog` | Review **body** text (no inline comments) | A submitted review | ~10–20 min |
+| Bot | Done signal on the head | Findings surface |
+| --- | --- | --- |
+| `coderabbitai` | `CodeRabbit` commit status leaves pending. `Review completed` → `done`; any other description → `paused (…)`, meaning it did not review this head — comment `@coderabbitai review` once if the head needs one | Inline diff comments in a COMMENTED review; nothing new when clean |
+| `greptile-apps` | `Greptile Review` check completes. Until triggered it shows `not triggered`. A clean re-review posts nothing new beyond the check and a 👍 on the trigger comment | "Greptile Summary" issue comment |
+| `pullfrog` | `pullfrog` check completes. After a rebase or force-push it often completes without posting a review | Review **body** text (no inline comments) |
+
+## Fetch the findings
+
+Once the script settles, read all three surfaces:
+
+```bash
+gh pr view <number> --json comments,reviews
+gh api repos/{owner}/{repo}/pulls/<number>/comments   # inline diff comments (coderabbit's findings live here)
+```
 
 - If greptile posts a "diff too large" offer instead of a review, reply `@greptile-apps review` once and wait for its summary.
 - Greptile does not re-review on later pushes. After pushing fixes, comment `@greptile-apps review` to trigger its next pass — once per push, after the push is complete.
@@ -68,18 +82,18 @@ Before every push: `bun run check` must pass locally. Commit via the `commit-wit
 
 ## Loop
 
-Use the `loop` skill to pace re-checks:
-
-- Active CI run: `gh pr checks --watch` (blocks until done).
-- Waiting on bots after a push: poll every ~5 min until all three have reported, ~40 min timeout per bot.
-- Idle, catching stragglers: hourly.
+- After every push: `wait-for-bots.sh` in the background, as above.
+- Exit 2 at the timeout: nudge what the last line names once (`@greptile-apps review` for `not triggered`), wait one more round, then report the bot that never reported instead of calling the PR ready.
+- Idle, catching stragglers: hourly via the `loop` skill.
 
 Every push restarts CI, coderabbit, and pullfrog; greptile must be re-triggered with a `@greptile-apps review` comment. After fixing findings, wait out the next bot pass before declaring anything.
 
 ## When to stop
 
-- CI green, every bot has reported on the head commit, all findings addressed or answered, branch merges cleanly → ready.
-- Three rounds of fix → push → recheck without converging → stop, summarize what's still broken, hand back.
+The round limit is counted by the script, not from memory: `fix commits since first bot review` counts the PR's commits authored after the first bot review. Author dates survive rebases and restacks, and a restack adds none. It counts commits, not pushes, so keep each remediation pass to one commit.
+
+- `settled` with `ci: passing`, every installed bot `done` on the head, all findings addressed or answered, branch merges cleanly → ready.
+- Before a fix push, if `fix commits since first bot review` has already reached REVIEW.md's remediation limit (3 where no REVIEW.md applies) → don't push: stop, summarize what's still broken, hand back.
 - The next fix would force a design choice → pause and put it to the user with `AskUserQuestion`.
 
 ## Report
@@ -92,4 +106,5 @@ Summarize fixes applied (cite commit SHAs), findings addressed, findings deferre
 - Never weaken, delete, or skip a test to make it pass. Change an assertion only when the behavior genuinely changed.
 - Never `--no-verify` — the lefthook pre-commit hook is what keeps `dist` fresh; skipping it causes the stale-artifacts CI failure.
 - Never bypass a failing check by marking it not required.
+- Every fix lands as a new commit on top of the branch — never `--amend`, fixup, squash, or otherwise fold it into an existing commit. A folded fix keeps the old author date, so `fix commits since first bot review` never sees it and the round limit stops working. Rebasing to resolve conflicts or restack is fine.
 - `gh pr ready` / declare ready only when checks are green and no unresolved bot findings remain on the head commit.

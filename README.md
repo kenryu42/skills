@@ -12,7 +12,7 @@ Runs the same task on a fixed three-model panel (`claude-fable-5.1`, `claude-opu
 
 ### `babysit`
 
-Watches an open pull request, fixes failing CI checks, waits out review bots (CodeRabbit, Greptile, Pullfrog), handles straightforward findings, and drives the PR to a mergeable state without re-prompting.
+Watches an open pull request, fixes failing CI checks, waits out review bots (CodeRabbit, Greptile, Pullfrog) with a bundled script that reads their done signals on the head commit and counts fix commits against the round limit, handles straightforward findings, and drives the PR to a mergeable state without re-prompting.
 
 ### `blast-radius`
 
