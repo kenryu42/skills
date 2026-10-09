@@ -59,8 +59,10 @@ days and will outlive this conversation, so a fresh agent must be able to resume
 alone. It is also what each layer's workflow reads. Use the structure in
 `references/plan-template.md`.
 
-Ask the user where the file lives if the repo gives no convention. Many repos keep planning docs
-untracked, for example through `.git/info/exclude`; do not commit the plan unless asked.
+Write it to `plans/<YYYY-MM-DD>-<slug>/PLAN.md` at the repo root: one folder per body of work,
+dated the day planning starts, with any supporting notes for that work beside it. Never leave a
+plan file at the repo root. Confirm git ignores the folder (`git check-ignore -q plans/x`); if it
+does not, ask the user before adding an ignore rule. Do not commit the plan unless asked.
 
 Every layer's spec needs:
 
