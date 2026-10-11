@@ -11,26 +11,33 @@ description: Watch an open PR on this repo — fix failing CI, wait out the revi
 - The user finished work on a branch and wants a PR opened and then shepherded.
 - A subagent that opens a PR does NOT babysit — return to the parent and let the parent decide.
 
+## GitHub access
+
+Use the REST API only: `gh api repos/OWNER/REPO/...`, where `OWNER/REPO` is the last two path segments of `git remote get-url origin`. Claude Code cloud sessions reject GraphQL, so never use `gh pr`, `gh issue`, `gh repo view`, or `gh api graphql`.
+
+- Comment on the PR: `gh api repos/OWNER/REPO/issues/<number>/comments -f body='…'`
+- Reply to an inline review thread: `gh api repos/OWNER/REPO/pulls/<number>/comments/<comment-id>/replies -f body='…'`
+
 ## Resolve the target PR
 
 This skill watches exactly one PR:
 
 1. If invoked with a PR number, use it.
-2. Otherwise use the current branch's open PR (`gh pr view --json number` resolves it).
-3. If the current branch has no PR yet: `git push -u origin HEAD`, then `gh pr create --fill`, and watch the PR just created. Never do this from `main`. With multiple commits on the branch, `--fill` titles the PR after the branch name — pass an explicit conventional-style `--title` summarizing the commits instead. Leave the body to `--fill`; coderabbit inserts its summary between its own markers without touching the rest.
+2. Otherwise use the current branch's open PR: `gh api "repos/OWNER/REPO/pulls?head=OWNER:<branch>&state=open" --jq '.[0].number'`.
+3. If the current branch has no PR yet: `git push -u origin HEAD`, then `gh api repos/OWNER/REPO/pulls -f head=<branch> -f base=main -f title='…' -f body='…'`, and watch the PR just created. Never do this from `main`. Give it a conventional-style title summarizing the commits, and a body summarizing the commit messages; coderabbit inserts its summary between its own markers without touching the rest.
 
 ### Stacked branches
 
 If `gh stack view --json` exits 0, the branch is a layer of a stack and the whole stack is the target:
 
-- Open missing PRs with `gh stack submit --auto --open` (never plain `--auto` — drafts are skipped by coderabbit and pullfrog), then give each new PR a conventional `--title` with `gh pr edit`.
+- Open missing PRs with `gh stack submit --auto --open` (never plain `--auto` — drafts are skipped by coderabbit and pullfrog), then give each new PR a conventional title with `gh api -X PATCH repos/OWNER/REPO/pulls/<number> -f title='…'`.
 - Watch every open PR in the stack each round, not just the current branch's.
 - Fix a finding on the layer that owns it: `gh stack checkout <branch>`, commit, `gh stack rebase --upstack`, `gh stack top`, `gh stack push`. Never commit a lower layer's fix on a higher branch.
 - A restack force-pushes every layer above the fix, which restarts CI and coderabbit/pullfrog on each of them; comment `@greptile-apps review` on each one.
 
 ## Wait for CI and the bots
 
-After every push, run `scripts/wait-for-bots.sh <number>` from this skill's directory in the background, and act when it exits. Never write your own poll loop or `sleep` to wait on CI or bots. It re-reads the head commit every 60 s and exits once CI has finished and every installed bot has reported on that head, or after 40 min (`--timeout <min>`):
+After every push, run `bash scripts/wait-for-bots.sh <number>` from this skill's directory in the background, and act when it exits. Never write your own poll loop or `sleep` to wait on CI or bots. It re-reads the head commit every 60 s and exits once CI has finished and every installed bot has reported on that head, or after 40 min (`--timeout <min>`):
 
 ```text
 PR #226 head 9e241fda (OPEN, merge CLEAN)
@@ -57,8 +64,9 @@ It waits only on bots that reported on one of the repo's last 10 PRs; the rest s
 Once the script settles, read all three surfaces:
 
 ```bash
-gh pr view <number> --json comments,reviews
-gh api repos/{owner}/{repo}/pulls/<number>/comments   # inline diff comments (coderabbit's findings live here)
+gh api --paginate repos/OWNER/REPO/issues/<number>/comments   # PR conversation comments (greptile's summary lives here)
+gh api --paginate repos/OWNER/REPO/pulls/<number>/reviews     # review bodies (pullfrog's findings live here)
+gh api --paginate repos/OWNER/REPO/pulls/<number>/comments    # inline diff comments (coderabbit's findings live here)
 ```
 
 - If greptile posts a "diff too large" offer instead of a review, reply `@greptile-apps review` once and wait for its summary.
@@ -67,7 +75,7 @@ gh api repos/{owner}/{repo}/pulls/<number>/comments   # inline diff comments (co
 
 ## Triage, in priority order
 
-1. **Merge conflicts** (`mergeStateStatus == DIRTY`): rebase onto `main`, resolve, force-push. This is a solo-maintainer repo — force-pushing your own PR branch is fine. In a stack, run `gh stack rebase` instead (never rebase a layer onto `main` directly), rebuild `dist/` on conflicts as AGENTS.md describes, then `gh stack push`.
+1. **Merge conflicts** (the script reports `merge DIRTY`): rebase onto `main`, resolve, force-push. This is a solo-maintainer repo — force-pushing your own PR branch is fine. In a stack, run `gh stack rebase` instead (never rebase a layer onto `main` directly), rebuild `dist/` on conflicts as AGENTS.md describes, then `gh stack push`.
 2. **Failing checks**: reproduce locally before pushing anything — CI is fully reproducible except Windows. Map the failing step to its local command:
    - *Check source* → `bun run check` (always the bundle, never its sub-steps separately)
    - *Verify E2E stability* → `bun run test:e2e:stability` — a failure here is usually a flaky test; fix the flake, never retry CI
@@ -107,4 +115,4 @@ Summarize fixes applied (cite commit SHAs), findings addressed, findings deferre
 - Never `--no-verify` — the lefthook pre-commit hook is what keeps `dist` fresh; skipping it causes the stale-artifacts CI failure.
 - Never bypass a failing check by marking it not required.
 - Every fix lands as a new commit on top of the branch — never `--amend`, fixup, squash, or otherwise fold it into an existing commit. A folded fix keeps the old author date, so `fix commits since first bot review` never sees it and the round limit stops working. Rebasing to resolve conflicts or restack is fine.
-- `gh pr ready` / declare ready only when checks are green and no unresolved bot findings remain on the head commit.
+- Declare ready only when checks are green and no unresolved bot findings remain on the head commit.

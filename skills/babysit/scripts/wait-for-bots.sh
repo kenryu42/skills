@@ -21,93 +21,90 @@ while [ $# -gt 0 ]; do
   shift
 done
 
-repo="$(gh repo view --json nameWithOwner -q .nameWithOwner)"
-[ -n "$pr" ] || pr="$(gh pr view --json number -q .number)"
-
-query='
-query($owner: String!, $name: String!, $number: Int!) {
-  repository(owner: $owner, name: $name) {
-    pullRequest(number: $number) {
-      state
-      mergeStateStatus
-      headRefOid
-      head: commits(last: 1) {
-        nodes { commit { statusCheckRollup { contexts(first: 100) { nodes {
-          __typename
-          ... on CheckRun { name status conclusion }
-          ... on StatusContext { context state description }
-        } } } } }
-      }
-      commits(last: 100) {
-        nodes { commit { authoredDate } }
-      }
-      reviews(last: 100) { nodes { author { login } submittedAt } }
-    }
-    pullRequests(last: 10) {
-      nodes { commits(last: 1) { nodes { commit { statusCheckRollup { contexts(first: 100) { nodes {
-        __typename
-        ... on CheckRun { name }
-        ... on StatusContext { context }
-      } } } } } } }
-    }
-  }
-}'
+repo="$(git remote get-url origin | sed -E 's#(\.git)?/*$##; s#.*[:/]([^/]+/[^/]+)$#\1#')"
+if [ -z "$pr" ]; then
+  branch="$(git branch --show-current)"
+  pr="$(gh api "repos/$repo/pulls?head=${repo%%/*}:$branch&state=open" --jq '.[0].number // empty')"
+  [ -n "$pr" ] || { echo "no open PR for $branch in $repo" >&2; exit 1; }
+fi
 
 program='
-def ctx_name: .name // .context;
 def bots: [
   {key: "coderabbit", check: "CodeRabbit", login: "coderabbitai"},
   {key: "greptile", check: "Greptile Review", login: "greptile-apps"},
   {key: "pullfrog", check: "pullfrog", login: "pullfrog"}
 ];
 
-.data.repository as $repo
-| $repo.pullRequest as $pr
-| ($pr.head.nodes[0].commit.statusCheckRollup.contexts.nodes // []) as $head
-| ([$repo.pullRequests.nodes[].commits.nodes[].commit.statusCheckRollup.contexts.nodes[]? | ctx_name] + [$head[] | ctx_name]) as $seen
+.pr as $pr
+| ([.runs[] | {kind: "run", name, status, conclusion}] + [.statuses[] | {kind: "status", name: .context, state, description}]) as $head
+| (.seen + [$head[].name]) as $seen
 
-| [$head[] | select([ctx_name] | inside([bots[].check]) | not)] as $ci
-| ([$ci[] | select(.status != null and .status != "COMPLETED" or .state == "PENDING" or .state == "EXPECTED") | ctx_name] | unique) as $running
-| ([$ci[] | select(.conclusion == "FAILURE" or .conclusion == "TIMED_OUT" or .conclusion == "CANCELLED"
-      or .conclusion == "ACTION_REQUIRED" or .conclusion == "STARTUP_FAILURE" or .state == "FAILURE" or .state == "ERROR") | ctx_name] | unique) as $failing
+| [$head[] | select([.name] | inside([bots[].check]) | not)] as $ci
+| ([$ci[] | select(.kind == "run" and .status != "completed" or .state == "pending") | .name] | unique) as $running
+| ([$ci[] | select(.conclusion == "failure" or .conclusion == "timed_out" or .conclusion == "cancelled"
+      or .conclusion == "action_required" or .conclusion == "startup_failure" or .state == "failure" or .state == "error") | .name] | unique) as $failing
 | (if $running != [] then "running (\($running | join(", ")))"
    elif $failing != [] then "failing (\($failing | join(", ")))"
    elif $ci == [] then "none"
    else "passing" end) as $ci_line
 
-| [bots[] | . as $bot | ([$head[] | select(ctx_name == $bot.check)] | last) as $c | {key, status: (
+| [bots[] | . as $bot | ([$head[] | select(.name == $bot.check)] | last) as $c | {key, status: (
     if any($seen[]; . == $bot.check) | not then "not installed"
     elif $c == null then (if $bot.key == "greptile" then "not triggered" else "waiting" end)
-    elif $c.__typename == "StatusContext" then
-      if $c.state == "PENDING" or $c.state == "EXPECTED" then "running"
-      elif $c.state == "SUCCESS" and $c.description == "Review completed" then "done"
-      elif $c.state == "SUCCESS" then "paused (\($c.description))"
+    elif $c.kind == "status" then
+      if $c.state == "pending" then "running"
+      elif $c.state == "success" and $c.description == "Review completed" then "done"
+      elif $c.state == "success" then "paused (\($c.description))"
       else "error (\($c.description))" end
-    elif $c.status != "COMPLETED" then "running"
-    else "done (\($c.conclusion | ascii_downcase))" end)}] as $bots
+    elif $c.status != "completed" then "running"
+    else "done (\($c.conclusion))" end)}] as $bots
 
-| ([$pr.reviews.nodes[] | select(.author.login as $l | any(bots[]; .login == $l)) | .submittedAt] | min) as $first_review
+| ([.reviews[] | select((.login | sub("\\[bot\\]$"; "")) as $l | any(bots[]; .login == $l)) | .at] | min) as $first_review
 | (if $first_review == null then 0
-   else [$pr.commits.nodes[].commit | select(.authoredDate > $first_review)] | length end) as $fixes
+   else [.commits[] | select(. > $first_review)] | length end) as $fixes
 
 | ((if $running != [] then ["ci"] else [] end)
    + [$bots[] | select(.status == "waiting" or .status == "running" or .status == "not triggered") | .key]) as $waiting
 
-| "PR #\($ENV.PR) head \($pr.headRefOid[0:8]) (\($pr.state), merge \($pr.mergeStateStatus))",
+| "PR #\($ENV.PR) head \($pr.sha[0:8]) (\(if $pr.merged then "MERGED" else $pr.state | ascii_upcase end), merge \($pr.mergeable_state | ascii_upcase))",
   "ci: \($ci_line)",
   ($bots[] | "\(.key): \(.status)"),
   "fix commits since first bot review: \($fixes)",
-  (if $pr.state != "OPEN" or $waiting == [] then "settled" else "waiting on: \($waiting | join(", "))" end)
+  (if $pr.state != "open" or $waiting == [] then "settled" else "waiting on: \($waiting | join(", "))" end)
 '
 
-snapshot() {
-  gh api graphql -F owner="${repo%%/*}" -F name="${repo#*/}" -F number="$pr" -f query="$query"
+checks() {
+  local runs statuses
+  runs="$(gh api "repos/$repo/commits/$1/check-runs?per_page=100" --jq '[.check_runs[] | {name, status, conclusion}]')" || return 1
+  statuses="$(gh api "repos/$repo/commits/$1/status?per_page=100" --jq '[.statuses[] | {context, state, description}]')" || return 1
+  jq -n --argjson runs "$runs" --argjson statuses "$statuses" '{$runs, $statuses}'
 }
 
+recent_check_names() {
+  local shas sha all=""
+  shas="$(gh api "repos/$repo/pulls?state=all&per_page=10" --jq '.[].head.sha')" || return 1
+  for sha in $shas; do
+    all+="$(checks "$sha")" || return 1
+  done
+  jq -s '[.[] | .runs[].name, .statuses[].context] | unique' <<<"$all"
+}
+
+snapshot() {
+  local pull head commits reviews
+  pull="$(gh api "repos/$repo/pulls/$pr" --jq '{state, merged, mergeable_state, sha: .head.sha}')" || return 1
+  head="$(checks "$(jq -r .sha <<<"$pull")")" || return 1
+  commits="$(gh api --paginate "repos/$repo/pulls/$pr/commits?per_page=100" --jq '[.[].commit.author.date]')" || return 1
+  reviews="$(gh api --paginate "repos/$repo/pulls/$pr/reviews?per_page=100" --jq '[.[] | {login: .user.login, at: .submitted_at}]')" || return 1
+  jq -n --argjson pr "$pull" --argjson head "$head" --argjson seen "$seen" \
+    --argjson commits "$(jq -s add <<<"$commits")" --argjson reviews "$(jq -s add <<<"$reviews")" \
+    '$head + {$pr, $seen, $commits, $reviews}'
+}
+
+seen=""
 out=""
 start=$SECONDS
 while :; do
-  if json="$(snapshot)"; then
+  if { [ -n "$seen" ] || seen="$(recent_check_names)"; } && json="$(snapshot)"; then
     out="$(PR="$pr" jq -r "$program" <<<"$json")"
     last="${out##*$'\n'}"
     if [ "$last" = settled ]; then

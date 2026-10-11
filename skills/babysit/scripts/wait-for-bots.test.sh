@@ -8,22 +8,43 @@ work=""
 setup() {
   work="$(mktemp -d)"
   mkdir -p "$work/bin"
+  git init -q -b feature "$work/repo"
+  git -C "$work/repo" remote add origin https://github.com/kenryu42/demo.git
   cat >"$work/bin/gh" <<'EOF'
 #!/usr/bin/env bash
-case "$1 $2" in
-  "repo view") echo "kenryu42/demo" ;;
-  "pr view") echo 42 ;;
-  "api graphql")
-    n=$(($(cat "$STUB_DIR/calls" 2>/dev/null || echo 0) + 1))
-    echo "$n" >"$STUB_DIR/calls"
-    if [ -f "$STUB_DIR/snap$n.fail" ]; then
-      echo "HTTP 502: Bad Gateway" >&2
-      exit 1
-    fi
-    cat "$STUB_DIR/snap$n.json"
-    ;;
-  *) echo "unexpected gh $*" >&2; exit 1 ;;
+[ "$1" = api ] || { echo "unexpected gh $*" >&2; exit 1; }
+shift
+filter=.
+endpoint=""
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --jq) filter="$2"; shift ;;
+    --paginate) ;;
+    *) endpoint="$1" ;;
+  esac
+  shift
+done
+if [ "$endpoint" = repos/kenryu42/demo/pulls/42 ]; then
+  echo $(($(cat "$STUB_DIR/calls" 2>/dev/null || echo 0) + 1)) >"$STUB_DIR/calls"
+fi
+n="$(cat "$STUB_DIR/calls" 2>/dev/null || echo 1)"
+if [ -f "$STUB_DIR/snap$n.fail" ]; then
+  echo "HTTP 502: Bad Gateway" >&2
+  exit 1
+fi
+case "$endpoint" in
+  "repos/kenryu42/demo/pulls?head=kenryu42:feature&state=open") query='[{number: 42}]' ;;
+  "repos/kenryu42/demo/pulls?state=all&per_page=10") query='[{head: {sha: "recent"}}]' ;;
+  "repos/kenryu42/demo/commits/recent/check-runs?per_page=100") query='{check_runs: [.installed[] | select(. != "CodeRabbit") | {name: .}]}' ;;
+  "repos/kenryu42/demo/commits/recent/status?per_page=100") query='{statuses: [.installed[] | select(. == "CodeRabbit") | {context: .}]}' ;;
+  repos/kenryu42/demo/pulls/42) query=.pull ;;
+  "repos/kenryu42/demo/commits/abcdef1234567890/check-runs?per_page=100") query='{check_runs}' ;;
+  "repos/kenryu42/demo/commits/abcdef1234567890/status?per_page=100") query='{statuses}' ;;
+  "repos/kenryu42/demo/pulls/42/commits?per_page=100") query=.commits ;;
+  "repos/kenryu42/demo/pulls/42/reviews?per_page=100") query=.reviews ;;
+  *) echo "unexpected gh api $endpoint" >&2; exit 1 ;;
 esac
+jq -c "$query" "$STUB_DIR/snap$n.json" | jq -rc "$filter"
 EOF
   chmod +x "$work/bin/gh"
 }
@@ -32,12 +53,12 @@ teardown() {
   rm -rf "$work"
 }
 
-cr() { jq -nc --arg s "$1" --arg d "$2" '{__typename:"StatusContext",context:"CodeRabbit",state:$s,description:$d}'; }
-run() { jq -nc --arg n "$1" --arg s "$2" --arg c "${3:-}" '{__typename:"CheckRun",name:$n,status:$s,conclusion:(if $c == "" then null else $c end)}'; }
+cr() { jq -nc --arg s "$1" --arg d "$2" '{kind:"status",context:"CodeRabbit",state:($s | ascii_downcase),description:$d}'; }
+run() { jq -nc --arg n "$1" --arg s "$2" --arg c "${3:-}" '{kind:"run",name:$n,status:($s | ascii_downcase),conclusion:(if $c == "" then null else $c | ascii_downcase end)}'; }
 ci_pass() { run full-check COMPLETED SUCCESS; }
 all_bots='["CodeRabbit","Greptile Review","pullfrog"]'
 
-# snapshot <n> <head contexts json> [installed names json] [commits json] [reviews json] [state]
+# snapshot <n> <head checks json> [installed names json] [commits json] [reviews json] [state]
 snapshot() {
   jq -n \
     --argjson head "$2" \
@@ -45,17 +66,15 @@ snapshot() {
     --argjson commits "${4:-[]}" \
     --argjson reviews "${5:-[]}" \
     --arg state "${6:-OPEN}" \
-    '{data: {repository: {
-      pullRequest: {
-        state: $state, mergeStateStatus: "CLEAN", headRefOid: "abcdef1234567890",
-        head: {nodes: [{commit: {statusCheckRollup: {contexts: {nodes: $head}}}}]},
-        commits: {nodes: [$commits[] | {commit: {authoredDate: .authored, committedDate: .committed, checkSuites: {totalCount: .suites}}}]},
-        reviews: {nodes: [$reviews[] | {author: {login: .login}, submittedAt: .at}]}
-      },
-      pullRequests: {nodes: [{commits: {nodes: [{commit: {statusCheckRollup: {contexts: {nodes:
-        [$installed[] | if . == "CodeRabbit" then {__typename: "StatusContext", context: .} else {__typename: "CheckRun", name: .} end]
-      }}}}]}}]}
-    }}}' >"$work/snap$1.json"
+    '{
+      pull: {state: (if $state == "OPEN" then "open" else "closed" end), merged: ($state == "MERGED"),
+        mergeable_state: "clean", head: {sha: "abcdef1234567890"}},
+      check_runs: [$head[] | select(.kind == "run") | del(.kind)],
+      statuses: [$head[] | select(.kind == "status") | del(.kind)],
+      installed: $installed,
+      commits: [$commits[] | {commit: {author: {date: .authored}, committer: {date: .committed}}}],
+      reviews: [$reviews[] | {user: {login: .login}, submitted_at: .at}]
+    }' >"$work/snap$1.json"
 }
 
 contexts() { jq -sc '.' <<<"$*"; }
@@ -64,7 +83,7 @@ expect() {
   local name="$1" want_code="$2" want_out="$3" want_err="${4:-}"
   shift 4
   local out err code
-  out="$(STUB_DIR="$work" PATH="$work/bin:$PATH" "$script" "$@" 2>"$work/stderr")"
+  out="$(cd "$work/repo" && STUB_DIR="$work" PATH="$work/bin:$PATH" "$script" "$@" 2>"$work/stderr")"
   code=$?
   err="$(cat "$work/stderr")"
   if [ "$code" != "$want_code" ] || [ "$out" != "$want_out" ] || [ "$err" != "$want_err" ]; then
@@ -132,7 +151,7 @@ settled" "" 42 --once
 teardown
 
 setup
-reviews='[{"login":"kenryu42","at":"2026-10-07T08:00:00Z"},{"login":"pullfrog","at":"2026-10-07T08:53:39Z"},{"login":"greptile-apps","at":"2026-10-07T08:55:01Z"}]'
+reviews='[{"login":"kenryu42","at":"2026-10-07T08:00:00Z"},{"login":"pullfrog[bot]","at":"2026-10-07T08:53:39Z"},{"login":"greptile-apps[bot]","at":"2026-10-07T08:55:01Z"}]'
 
 setup
 snapshot 1 "$(contexts "$(ci_pass)" "$(cr SUCCESS 'Review completed')" "$(run 'Greptile Review' COMPLETED SUCCESS)" "$(run pullfrog COMPLETED SUCCESS)")" "$all_bots" \
@@ -208,6 +227,18 @@ greptile: not installed
 pullfrog: not installed
 fix commits since first bot review: 0
 settled" "" --once
+teardown
+
+setup
+git -C "$work/repo" remote set-url origin http://local_proxy@127.0.0.1:41271/git/kenryu42/demo
+snapshot 1 "$(contexts "$(ci_pass)" "$(cr SUCCESS 'Review completed')")" '["CodeRabbit"]'
+expect "reads the repository from a proxied git remote" 0 "PR #42 head abcdef12 (OPEN, merge CLEAN)
+ci: passing
+coderabbit: done
+greptile: not installed
+pullfrog: not installed
+fix commits since first bot review: 0
+settled" "" 42 --once
 teardown
 
 [ "$failures" -eq 0 ] || { echo "$failures failed"; exit 1; }
