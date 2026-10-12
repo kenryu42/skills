@@ -1,0 +1,16 @@
+# pstack skills ported from cursor/plugins, and the upstream commit each one last synced with.
+# Maintained by skills/sync-pstack/scripts/sync-pstack.sh.
+architect 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+arena 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+blast-radius 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+bro 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+create-verification-skill 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+how 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+interrogate 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+maintain-verification-skill 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+no-comments 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+show-me-your-work 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+typescript-best-practices 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+unslop 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+why 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
+no-comments/references/comment-sicko.md 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def pstack/agents/comment-sicko.md

@@ -134,6 +134,10 @@ Keeps a reviewable TSV decision log for long-running work, audits it against the
 
 Finds and verifies potential sponsors for a GitHub repository by mining peer repos' sponsor data (README sponsor sections, sponsorkit SVGs, the GitHub Sponsors API, and Open Collective), ranking companies by cross-repo sponsorship frequency. Outputs `companies-ranked.csv` and a `verified-leads.csv` for outreach planning.
 
+### `sync-pstack`
+
+Keeps the skills adapted from pstack current. `pstack.lock` records the `cursor/plugins` commit each one last synced with, so a bundled script can three-way merge upstream changes without losing the port edits. The agent then ports any new Cursor-specific text, runs a check that fails on Cursor references or conflict markers, and opens a PR.
+
 ### `test-coverage-improver`
 
 Runs coverage suites and adds direct, test-only quick wins until no eligible quick wins remain. Reports added tests and opportunities that require approval.
