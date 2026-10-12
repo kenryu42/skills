@@ -28,6 +28,7 @@ Upstream names sibling skills in bold or as slash commands. Every reference gets
 - `the **how** skill` or `/how` becomes `the **how** skill (`../how/SKILL.md`)`.
 - Principle skills use their full directory name: `the **prove-it-works** principle skill` becomes `the **principle-prove-it-works** skill (`../principle-prove-it-works/SKILL.md`)`.
 - Text in a prompt file handed to a subagent (`references/*-prompt.md`) uses `<skills-dir>/<skill>/SKILL.md`, and the prompt's intro says the orchestrator fills in `<skills-dir>`.
+- A custom agent prompt installed outside the skill directory (`no-comments/references/comment-sicko.md`, from `pstack/agents/`) uses `~/.agents/skills/<skill>/SKILL.md`. Its frontmatter `name` is the kebab-case agent id.
 - A reference to a skill that is not installed here (`/recall`, `/setup-pstack`, `/poteto-mode`) gets cut, or replaced by the steps it stood for.
 
 ## Cursor environment

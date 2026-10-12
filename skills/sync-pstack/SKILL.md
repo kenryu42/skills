@@ -6,7 +6,7 @@ disable-model-invocation: true
 
 # Sync pstack
 
-`pstack.lock` at the root of the `kenryu42/skills` clone lists each ported pstack skill and the `cursor/plugins` commit it last synced with. `scripts/sync-pstack.sh` three-way merges every upstream change since that commit into `skills/<skill>/`. The merge base is upstream at the locked commit, so your port edits survive wherever upstream did not touch the same lines. You port what is left, following [`references/porting-guide.md`](references/porting-guide.md).
+`pstack.lock` at the root of the `kenryu42/skills` clone lists each ported pstack skill and the `cursor/plugins` commit it last synced with. A line with a third column tracks a single upstream file at another path, such as `no-comments/references/comment-sicko.md`, which is ported from `pstack/agents/comment-sicko.md`. `scripts/sync-pstack.sh` three-way merges every upstream change since that commit into `skills/<skill>/`. The merge base is upstream at the locked commit, so your port edits survive wherever upstream did not touch the same lines. You port what is left, following [`references/porting-guide.md`](references/porting-guide.md).
 
 Run everything from the root of the `kenryu42/skills` clone. Paths to `scripts/` and `references/` are relative to this skill's directory.
 

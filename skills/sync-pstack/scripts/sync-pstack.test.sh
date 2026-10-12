@@ -207,6 +207,28 @@ test_check_flags_cursor_terms_and_markers_but_not_precursor() {
     { sed 's/^/    /' "$work/out"; return 1; }
 }
 
+test_tracks_a_single_upstream_file_at_another_path() {
+  up_write demo/SKILL.md "$base_doc"
+  mkdir -p "$work/upstream/pstack/agents"
+  printf 'name: Sicko\n\nbe mean\n' >"$work/upstream/pstack/agents/sicko.md"
+  local base head
+  base="$(up_commit base)"
+  ours_write demo/SKILL.md "$port_doc"
+  ours_write demo/references/sicko.md $'name: sicko\n\nbe mean\n'
+  ours_write demo/references/other.md "mine"
+  lock "demo $base" "demo/references/sicko.md $base pstack/agents/sicko.md"
+  ours_commit
+  printf 'name: Sicko\n\nbe meaner\n' >"$work/upstream/pstack/agents/sicko.md"
+  head="$(up_commit meaner)"
+  sync
+  expect_code 0 &&
+    expect_out "merged demo/references/sicko.md" &&
+    expect_file demo/references/sicko.md $'name: sicko\n\nbe meaner' &&
+    expect_file demo/references/other.md "mine" &&
+    expect_lock "demo/references/sicko.md $head pstack/agents/sicko.md" &&
+    expect_lock "demo $head"
+}
+
 test_add_imports_a_new_skill_at_upstream_head() {
   up_write fresh/SKILL.md $'# Fresh\n\nSee `.cursor/skills/x/`.\n'
   local head
