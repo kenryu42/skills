@@ -6,21 +6,20 @@ disable-model-invocation: true
 
 # Sync pstack
 
-`pstack.lock` at the root of the `kenryu42/skills` clone lists each ported pstack skill and the `cursor/plugins` commit it last synced with. A line with a third column tracks a single upstream file at another path, such as `no-comments/references/comment-sicko.md`, which is ported from `pstack/agents/comment-sicko.md`. `scripts/sync-pstack.sh` three-way merges every upstream change since that commit into `skills/<skill>/`. The merge base is upstream at the locked commit, so your port edits survive wherever upstream did not touch the same lines. You port what is left, following [`references/porting-guide.md`](references/porting-guide.md).
+`pstack.lock` at the root of the `kenryu42/skills` clone lists each ported pstack skill and the `cursor/plugins` commit it last synced with. A line with a third column tracks a single upstream file at another path, such as `no-comments/references/comment-sicko.md`, which is ported from `pstack/agents/comment-sicko.md`. `skills/sync-pstack/scripts/sync-pstack.sh` three-way merges every upstream change since that commit into `skills/<skill>/`. The merge base is upstream at the locked commit, so your port edits survive wherever upstream did not touch the same lines. You port what is left, following [`references/porting-guide.md`](references/porting-guide.md).
 
-Run everything from the root of the `kenryu42/skills` clone. Paths to `scripts/` and `references/` are relative to this skill's directory.
+Run everything from the root of the `kenryu42/skills` clone. The script is `skills/sync-pstack/scripts/sync-pstack.sh` and the guide is `skills/sync-pstack/references/porting-guide.md`.
 
 ## 1. Start clean
 
 1. `git status --porcelain` must be empty. If it is not, stop and report.
 2. `git switch main && git pull --ff-only origin main`.
-3. `git switch -c sync-pstack/<YYYY-MM-DD>`.
 
 ## 2. Merge
 
-Run `bash scripts/sync-pstack.sh`. It fetches upstream into `~/.cache/sync-pstack/plugins`, merges, updates `pstack.lock`, then checks the tracked skills for Cursor text and conflict markers. Its output lines:
+Run `bash skills/sync-pstack/scripts/sync-pstack.sh` on `main`. It fetches upstream into `~/.cache/sync-pstack/plugins`, merges, updates `pstack.lock`, then checks the tracked skills for Cursor text and conflict markers. Its output lines:
 
-- `up to date`: nothing changed upstream. Delete the branch and report that. Stop.
+- `up to date`: nothing changed upstream. The working tree is untouched. Report that and stop.
 - `merged <skill>`, followed by the upstream commits that touched it.
 - `updated` / `added` / `removed <skill>/<file>`: applied cleanly.
 - `conflict <skill>/<file>`: both sides changed the same lines. The file has `<<<<<<< ours` / `>>>>>>> upstream` markers.
@@ -28,6 +27,8 @@ Run `bash scripts/sync-pstack.sh`. It fetches upstream into `~/.cache/sync-pstac
 - `cursor <skill>/<file>:<line>: <text>` and `marker ...`: what the check found.
 
 Exit 0 means the merge was clean and the check passed. Exit 1 means something needs you.
+
+Anything other than `up to date`: move the changes onto a branch with `git switch -c sync-pstack/<YYYY-MM-DD>`, adding `-2`, `-3` and so on if that name exists. Never commit on `main`.
 
 ## 3. Port
 
@@ -39,7 +40,7 @@ Work through every merged skill, not just the ones with conflicts:
 4. Review the clean hunks too. A clean merge can still bring in a bare skill reference without a `../<skill>/SKILL.md` path, a reference to a skill not installed here, or Cursor wording the check's patterns miss.
 5. Keep `agents/openai.yaml` and the skill's README entry in step if upstream changed the skill's purpose or `disable-model-invocation`.
 
-Rerun `bash scripts/sync-pstack.sh check` until it exits 0. Never weaken its patterns to get a pass. If it flags a legitimate non-Cursor use, reword the text.
+Rerun `bash skills/sync-pstack/scripts/sync-pstack.sh check` until it exits 0. Never weaken its patterns to get a pass. If it flags a legitimate non-Cursor use, reword the text.
 
 ## 4. Ship
 
@@ -50,8 +51,4 @@ Rerun `bash scripts/sync-pstack.sh check` until it exits 0. Never weaken its pat
 
 ## Tracking another pstack skill
 
-`bash scripts/sync-pstack.sh add <skill>` copies the skill at upstream HEAD into `skills/<skill>/` and adds its lock line. Then port it end to end per the guide, add `agents/openai.yaml`, `LICENSE.txt`, and a README entry ending "Adapted from pstack.", and ship it as in step 4 with a `feat(<skill>):` message.
-
-## Testing the script
-
-`bash scripts/sync-pstack.test.sh` runs the script against throwaway git repos and never touches the network or this clone.
+`bash skills/sync-pstack/scripts/sync-pstack.sh add <skill>` copies the skill at upstream HEAD into `skills/<skill>/` and adds its lock line. Then port it end to end per the guide, add `agents/openai.yaml`, `LICENSE.txt`, and a README entry ending "Adapted from pstack.", and ship it as in step 4 with a `feat(<skill>):` message.

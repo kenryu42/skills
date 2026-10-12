@@ -148,9 +148,9 @@ sync_all() {
       merge_entry "$s" "$upath" "$base" "$head" >"$work/notes"
       cat "$work/notes"
       grep -qE '^(conflict|flag) ' "$work/notes" && attention=1
+      set_lock "$s" "$head"
       changed=1
     fi
-    [ "$base" = "$head" ] || set_lock "$s" "$head"
   done <"$work/tracked"
   [ "$changed" = 1 ] || echo "up to date"
 }
