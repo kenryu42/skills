@@ -1,0 +1,5 @@
+interface:
+  display_name: "Sync pstack"
+  short_description: "Merge upstream pstack changes into the ported skills and open a PR"
+policy:
+  allow_implicit_invocation: false

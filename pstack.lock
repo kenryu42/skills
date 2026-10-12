@@ -1,0 +1,15 @@
+# pstack skills ported from cursor/plugins, and the upstream commit each one last synced with.
+# Maintained by skills/sync-pstack/scripts/sync-pstack.sh.
+architect 12d587dfb20741cafc376c42c696c5f6e2a64487
+arena 12d587dfb20741cafc376c42c696c5f6e2a64487
+blast-radius e46364b8be46000b7df0f260550cd712afbb8d36
+bro 99559f2f52047978602ef365589275831e76af07
+create-verification-skill 4483dcd246c3212ff38890bd53977c16d7b54fb7
+how 12d587dfb20741cafc376c42c696c5f6e2a64487
+interrogate 12d587dfb20741cafc376c42c696c5f6e2a64487
+maintain-verification-skill 6714489fa233263f00e419f6cfc4759b07c81056
+no-comments e8d856f0273b42ebafe0ec3546bd645709e7c1b0
+show-me-your-work 12d587dfb20741cafc376c42c696c5f6e2a64487
+typescript-best-practices d7cde2b84eadbcd6fd890302c876f4436ccb6d82
+unslop 70b2dc8b4b85c8d5648624ca40d692c421fff32f
+why 12d587dfb20741cafc376c42c696c5f6e2a64487
