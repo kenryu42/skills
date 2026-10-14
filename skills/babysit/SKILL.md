@@ -79,7 +79,7 @@ gh api --paginate repos/OWNER/REPO/pulls/<number>/comments    # inline diff comm
 2. **Failing checks**: reproduce locally before pushing anything. Read the failed step with `gh run view <run-id> --log-failed`. When the repo's instructions (AGENTS.md, CLAUDE.md, CONTRIBUTING.md) map CI steps to local commands, use that mapping and its rules for the failure; otherwise run the command the step runs in the workflow file. A step that needs a platform you are not on has no local repro: reason from its log about platform-specific paths and behavior.
 3. **Bot findings**: act only on feedback that holds up against the repo's review rules (`REVIEW.md`, AGENTS.md or CLAUDE.md, where present) — smallest fix per finding, a finding is never a mandate to build a framework. coderabbit is nitpick-heavy; filter it hardest. When a finding hinges on a judgement call or is unclear, don't guess — reply on the thread with what you would have done and defer it. Bot findings count toward the remediation limit in When to stop, the same as autoreview findings. When the review rules classify a finding as accepted or out of scope, answer it on the thread with that classification instead of fixing it.
 
-   Findings still expect red–green TDD for behavior fixes: failing test first, then the fix.
+   A behavior fix still starts with its failing reproduction, then the fix. A fix that changes no behavior adds no test.
 
 Before every push, run the repo's full local check (the final check its instructions name) and make it pass. Commit via the `commit-with-context` skill.
 

@@ -92,7 +92,7 @@ Puts a TypeScript project behind a static gate that stops agents from landing ba
 
 ### `ship-stack`
 
-Ships a large implementation, refactor, or batch of fixes as a `gh stack` of small PRs, one layer at a time. Plans the split into a resumable plan file and gets approval, then runs one Workflow per layer to implement it red–green, with one autoreview fix pass and one confirmation round, submits the layer, and drives it to green with `babysit` before starting the next. Needs `gh-stack`, `babysit`, `autoreview`, and `commit-with-context` installed alongside.
+Ships a large implementation, refactor, or batch of fixes as a `gh stack` of small PRs, one layer at a time. Plans the split into a resumable plan file and gets approval, then runs one Workflow per layer to implement and test it, with one autoreview fix pass and one confirmation round, submits the layer, and drives it to green with `babysit` before starting the next. Needs `gh-stack`, `babysit`, `autoreview`, and `commit-with-context` installed alongside.
 
 ### `show-me-your-work`
 

@@ -1,6 +1,6 @@
 ---
 name: ship-stack
-description: Ship a large implementation, refactor, or batch of fixes as a gh stack of small PRs, one layer at a time. Plan the split into a resumable plan file and get the user's approval. Then, as the manager, run one Workflow per layer to implement it red–green, submit the layer, and drive it to green with the babysit skill before starting the next layer. Use this whenever the user wants work broken into multiple PRs, asks to ship or deliver something as a stack, wants an audit, findings list, or plan turned into PRs, or asks to resume or continue a stack from a plan file — even if they never say "stack".
+description: Ship a large implementation, refactor, or batch of fixes as a gh stack of small PRs, one layer at a time. Plan the split into a resumable plan file and get the user's approval. Then, as the manager, run one Workflow per layer to implement and test it, submit the layer, and drive it to green with the babysit skill before starting the next layer. Use this whenever the user wants work broken into multiple PRs, asks to ship or deliver something as a stack, wants an audit, findings list, or plan turned into PRs, or asks to resume or continue a stack from a plan file — even if they never say "stack".
 ---
 
 # Ship a stack
@@ -154,12 +154,14 @@ For each layer:
 - **One writer.** Only one agent at a time edits files or runs git in the checkout. Agents working in
   parallel only read, research, or review. Agents in a workflow share your working tree, so two
   writers corrupt each other's work.
-- **Stay on the layer's branch.** Implement the layer's spec red–green: write the failing test,
-  confirm it fails for the expected reason, then make the smallest fix. Run the repo's final check.
+- **Stay on the layer's branch.** A behavior change starts with its failing reproduction through
+  the app's real surface: write the test, confirm it fails for the expected reason, then make the
+  smallest fix. A refactor or removal that changes no behavior adds no test: keep the existing
+  behavior tests green and diff the real app's output before and after. Run the repo's final check.
   Commit with `commit-with-context`.
 - **Autoreview with a round cap.** After committing, load `autoreview` and review only this layer's
   commits: `--mode branch --base <parent-branch>` (the layer below, or the trunk for the first
-  layer), plus `--exclude` for any generated trees. Verify each finding. Fix the real ones red–green
+  layer), plus `--exclude` for any generated trees. Verify each finding. Fix the real ones the same way
   in one remediation pass, record the rejected ones with a reason, then run one confirmation round
   on the new HEAD. If the repo's review rules set a different cap or limit which remedies are
   allowed, follow them. The layer is clean when the confirmation round is `scoped-clean`, or when
