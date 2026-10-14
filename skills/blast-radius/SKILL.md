@@ -43,8 +43,8 @@ The panel is fixed:
 
 | Arm | Model | Effort |
 | --- | --- | --- |
-| A | `claude-fable-5.1` | `max` |
-| B | `claude-opus-5` | `xhigh` |
+| A | `claude-fable-5-1` | `max` |
+| B | `claude-opus-5-5` | `xhigh` |
 | C | `gpt-6-astra` | `max` |
 
 Run the arm you already are natively. Reach the other two through their CLI.
@@ -68,11 +68,11 @@ codex exec -s read-only --skip-git-repo-check \
 **From Codex** (`HOST=codex`) arm C is native. Reach arms A and B with:
 
 ```sh
-claude -p --model claude-fable-5.1 --effort max \
+claude -p --model claude-fable-5-1 --effort max \
   --disallowed-tools "Edit Write NotebookEdit" \
   --output-format text < "$OUT/brief.md" > "$OUT/arm-a.md"
 
-claude -p --model claude-opus-5 --effort xhigh \
+claude -p --model claude-opus-5-5 --effort xhigh \
   --disallowed-tools "Edit Write NotebookEdit" \
   --output-format text < "$OUT/brief.md" > "$OUT/arm-b.md"
 ```

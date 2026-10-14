@@ -28,8 +28,8 @@ Run one reviewer per arm of the three-model panel in the **arena** skill (`../ar
 
 | Reviewer | Panel arm |
 |----------|-----------|
-| Reviewer A | arm A, `claude-fable-5.1` |
-| Reviewer B | arm B, `claude-opus-5` |
+| Reviewer A | arm A, `claude-fable-5-1` |
+| Reviewer B | arm B, `claude-opus-5-5` |
 | Reviewer C | arm C, `gpt-6-astra` |
 
 If an arm drops out, proceed with the rest and name the dropout in the verdict.
