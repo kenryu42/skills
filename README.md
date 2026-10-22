@@ -78,6 +78,22 @@ Coordinates multiple agents on large-scope tasks by delegating substantive work,
 
 Reviews GitHub pull requests from their URLs by reading the full PR, its commits, comments, and linked issues, then analyzing the diff against the main-branch code without checking out the PR branch. Reports what the change does, the good, the bad, the ugly, test coverage, and any open questions blocking a merge decision.
 
+### `principle-laziness-protocol`
+
+Biases refactors and diff sizing toward deletion and the smallest change that solves the problem, with each decision kept in one source of truth. Adapted from pstack.
+
+### `principle-prove-it-works`
+
+Verifies finished work against the real artifact rather than a proxy, a self-report, or "it compiles", ideally with a rerunnable check script. Adapted from pstack.
+
+### `principle-redesign-from-first-principles`
+
+Integrates a new requirement by redesigning as if it had been a foundational assumption, propagating it through types, docs, and examples, then delivering incrementally. Adapted from pstack.
+
+### `principle-separate-before-serializing-shared-state`
+
+Removes shared write targets between concurrent actors by giving each its own file, key, branch, or directory, and serializes structurally only when one shared writer is a real invariant. Adapted from pstack.
+
 ### `release-notes`
 
 Generates concise, evidence-based notes and updates only the body of the latest existing GitHub Release.

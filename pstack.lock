@@ -15,3 +15,7 @@ unslop 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
 why 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def
 no-comments/references/comment-sicko.md 1b6d44ff26d4e242f4e8f68c391e6d2f7ca16def pstack/agents/comment-sicko.md
 swarm 7698375f92a729f8bb89d113c633dce9ff9dc6db
+principle-laziness-protocol 7698375f92a729f8bb89d113c633dce9ff9dc6db
+principle-prove-it-works 7698375f92a729f8bb89d113c633dce9ff9dc6db
+principle-redesign-from-first-principles 7698375f92a729f8bb89d113c633dce9ff9dc6db
+principle-separate-before-serializing-shared-state 7698375f92a729f8bb89d113c633dce9ff9dc6db

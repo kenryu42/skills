@@ -1,0 +1,5 @@
+interface:
+  display_name: "Separate Before Serializing Shared State"
+  short_description: "Give concurrent actors their own state before adding locks"
+policy:
+  allow_implicit_invocation: false
