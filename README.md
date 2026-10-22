@@ -106,6 +106,10 @@ Finds and verifies potential sponsors for a GitHub repository by mining peer rep
 
 Keeps the skills adapted from pstack current. `pstack.lock` records the `cursor/plugins` commit each one last synced with, so a bundled script can three-way merge upstream changes without losing the port edits. The agent then ports any new Cursor-specific text, runs a check that fails on Cursor references or conflict markers, and opens a PR.
 
+### `swarm`
+
+Fans one job out to parallel workers, either split into slices or raced on identical briefs under a first-pass, rank-all, or best-of rule declared up front, then aggregates their `PASS`, `ISSUES`, or `BLOCKED` results into one report and records any slice without a valid result as a gap. Writing workers get their own git worktree, and model races use the `arena` panel. Adapted from pstack.
+
 ### `test-coverage-improver`
 
 Runs coverage suites and adds direct, test-only quick wins until no eligible quick wins remain. Reports added tests and opportunities that require approval.
