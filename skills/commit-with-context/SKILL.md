@@ -7,7 +7,7 @@ description: Create a coherent Conventional Commit with concise, high-signal con
 
 - Current status: !`git status --short`
 - Staged changes: !`git diff --cached`
-- Unstaged changes: !`git diff`
+- Unstaged changes: !`git diff --stat`
 - Current branch: !`git branch --show-current`
 - Recent commit messages: !`git log -5 --format='%h%n%s%n%b%n---'`
 
@@ -49,17 +49,17 @@ Validation:
 - List the exact verification commands that passed.
 ```
 
-After staging the intended scope, calculate the LOC changes for `src/`, `tests/`, and the Git pathspec `*.md`. Append this aligned plain-text block to every commit message:
+After staging the intended scope, run `scripts/loc.sh` from this skill's directory with the repository root as the working directory. Append its output unchanged to every commit message; never write or adjust the numbers by hand. It looks like this:
 
 ```text
 LOC:
   src/    +128 / -36 = net +92
   tests/   +91 /  -8 = net +83
   *.md     +27 /  -4 = net +23
-  Total   +246 / -48 = net +198
+  Sum     +246 / -48 = net +198
 ```
 
-Replace the example values with the staged values. Use `net = added - deleted`, and add the three rows for `Total`.
+`Sum` adds the three rows above it, not the whole staged diff.
 
 Keep the body high-signal:
 

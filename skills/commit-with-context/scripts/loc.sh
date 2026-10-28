@@ -13,7 +13,7 @@ printf '%s %s %s\n' src/ "$src_a" "$src_d" tests/ "$tests_a" "$tests_d" '*.md' "
 { label[NR] = $1; add[NR] = $2; del[NR] = $3; ta += $2; td += $3 }
 END {
   n = NR
-  label[n + 1] = "Total"; add[n + 1] = ta; del[n + 1] = td
+  label[n + 1] = "Sum"; add[n + 1] = ta; del[n + 1] = td
   for (i = 1; i <= n + 1; i++) {
     if (length("+" add[i]) > wa) wa = length("+" add[i])
     if (length("-" del[i]) > wd) wd = length("-" del[i])
