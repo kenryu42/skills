@@ -3,13 +3,15 @@ name: commit-with-context
 description: Create a coherent Conventional Commit with concise, high-signal context. Use when the user explicitly asks to commit current work or invokes $commit-with-context. Keep unrelated changes out and avoid splitting one task into artificial micro-commits.
 ---
 
-## Context
+## Gather context
 
-- Current status: !`git status --short`
-- Staged changes: !`git diff --cached`
-- Unstaged changes: !`git diff --stat`
-- Current branch: !`git branch --show-current`
-- Recent commit messages: !`git log -5 --format='%h%n%s%n%b%n---'`
+The repository to commit in is the one the user named, which may differ from the session's working directory; when none is named, it is the session's repository. Run every git command below and in the rest of this workflow against that repository with `git -C <repo>`:
+
+- Current status: `git status --short`
+- Staged changes: `git diff --cached`
+- Unstaged changes: `git diff --stat`
+- Current branch: `git branch --show-current`
+- Recent commit messages: `git log -5 --format='%h%n%s%n%b%n---'`
 
 ## Scope the commit
 
@@ -49,7 +51,7 @@ Validation:
 - List the exact verification commands that passed.
 ```
 
-After staging the intended scope, run `scripts/loc.sh` from this skill's directory with the repository root as the working directory. Append its output unchanged to every commit message; never write or adjust the numbers by hand. It looks like this:
+After staging the intended scope, run `cd <repo> && bash <this skill's directory>/scripts/loc.sh`. Append its output unchanged to every commit message; never write or adjust the numbers by hand. It looks like this:
 
 ```text
 LOC:
