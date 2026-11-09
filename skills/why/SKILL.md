@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Investigate the motivation and intent behind code. The companion `how` skill answers what the code does and how it works. `why` answers what forces led to its shape.
 
-Spawn subagents with the host's subagent tool (the Agent tool in Claude Code) on the parent model. Investigators and the synthesizer need MCP access, so use a subagent type that keeps it (`general-purpose` in Claude Code). Tell each one not to edit files.
+Spawn subagents with the host's subagent tool (the Agent tool in Claude Code) on the parent model. Investigators and the synthesizer need MCP access, so use a subagent type that keeps it (`general-purpose` in Claude Code). Tell each one not to edit files. Pick each subagent's reasoning effort for the job when the host's subagent tool lets you set it. Raise it for the hardest or subtlest work and lower it for routine work.
 
 **Do not use a read-only subagent type that strips MCP tools.** That disables the MCP-backed investigators and the synthesizer's citation spot-checks.
 

@@ -8,7 +8,7 @@ disable-model-invocation: true
 
 Explore the codebase to answer "how does X work?" questions. Produce architectural explanations at the level of a senior engineer onboarding onto a subsystem, enough to build a working mental model, not so much that it reads like annotated source code.
 
-Spawn subagents with the host's subagent tool (the Agent tool in Claude Code) on the parent model. Every subagent here is read-only: tell it not to edit files.
+Spawn subagents with the host's subagent tool (the Agent tool in Claude Code) on the parent model. Every subagent here is read-only: tell it not to edit files. Pick each subagent's reasoning effort for the job when the host's subagent tool lets you set it. Raise it for the hardest or subtlest work and lower it for routine work.
 
 ## 1. Assess complexity
 

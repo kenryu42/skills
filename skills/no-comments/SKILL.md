@@ -18,7 +18,7 @@ Use the caller's files or diff. Otherwise use the current diff against the base 
 
 ## Steps
 
-1. Spawn Comment Sicko with a fresh context and pass the scope. Do not restate its rules.
+1. Spawn Comment Sicko with a fresh context and pass the scope. Pick each subagent's reasoning effort for the job when the host's subagent tool lets you set it. Raise it for the hardest or subtlest work and lower it for routine work. Do not restate its rules.
    - Claude Code: the Agent tool with `subagent_type: "comment-sicko"`.
    - Codex: `spawn_agent` with `agent_type: "comment-sicko"` and `fork_turns: "none"`.
    - Otherwise, including Amp, or when that agent type does not exist: a general-purpose subagent with `references/comment-sicko.md` as its prompt, without parent context.
