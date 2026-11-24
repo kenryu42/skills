@@ -41,7 +41,8 @@ quirks. Point to AGENTS.md rather than copying it.>
 This plan is delivered with the ship-stack skill:
 
 - Build bottom-up, one layer at a time.
-- Each layer is implemented by its own Workflow, which stops at the commit.
+- Each layer is implemented by its own layer agent (a subagent, or a Workflow in workflow mode),
+  which stops at the commit.
 - The manager session owns every `gh stack` operation, submits with
   `gh stack submit --auto --open`, and drives each PR to green with babysit.
 - Start the next layer only when the current PR and every lower PR are green on their head commits.
@@ -72,13 +73,12 @@ because both edit X".>
 
 ## Layer notes
 
-The manager appends each workflow report here: the implementation and every finding-fix
-workflow. Later layers, fix workflows, and resumed sessions read this to learn why the code is the
-way it is.
+The manager appends each layer agent's report here: the implementation and every finding fix.
+Later layers, fix agents, and resumed sessions read this to learn why the code is the way it is.
 
 ### Layer 1: `<branch>`
 
-- <YYYY-MM-DD, implementation workflow: commits `<sha>` "<subject>"; decisions; surprises; open
+- <YYYY-MM-DD, implementation: commits `<sha>` "<subject>"; decisions; surprises; open
   questions.>
 
 ## Progress log
